@@ -105,12 +105,11 @@ class Lexer:
         self.advance()
         while self.current_char is not "'":
             if self.current_char is "\\":
-                str_str += self.current_char
                 self.advance()
             if self.current_char is None:
                 raise IncompleteString(
                     self.pos,
-                    self.current_char if self.current_char is not None else "EOF",
+                    "EOF",
                 )
             str_str += self.current_char
             self.advance()
