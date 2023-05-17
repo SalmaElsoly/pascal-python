@@ -1,0 +1,108 @@
+Program     →  Header Declsec Block{main}
+Header       →  ProgramID Uses
+ProgramID →  program identifier ;
+Uses          →  Uses PackageList ; | Epsilon
+
+PackageList    →  PackageList Package , | Package
+PackageList → Package PackaList*
+PackageList* → , Package PackageList’ | ε
+
+Declsec        →   Decls ProcedureDecS
+Decls            →   VarDecls | ConstDecls |TypeDecl
+---------------------------updated
+VarDecls → var VarDecl | ε
+VarDecl → VarldList : Datatype; VarDecl2
+VarDecl2 → VarDecl | ε
+TypeDecl       →  type identifier = Datatype;
+
+---------------------------------------VarIdList  →  VarIdList, identifier | identifier
+VarldList → identifier VarldList*
+VarldList* → , identifier VarldList* |ε
+
+ Datatype        →  integer| real| char| string| Boolean
+ConstDecls    → const Constld| ε
+
+ConstId   → ConstId identifier =  Constant; | identifier =  Constant;
+Constld → identifier = Constant; Constld*
+Constld* →  identifier = Constant; Constld* |ε
+
+Constant →  constant | string| boolean
+
+ProcedureDecS → ProcedureDecS FuncDecS |  ProcedureDecS ProcedureDec | FuncDecS | ProcedureDec | ε
+ProcedureDecS → A* ProcedureDecS*|FuncDecS|ProcedureDec| ε
+A* →  FuncDecS | ProcedureDec
+ProcedureDecS* → FuncDecS ProcedureDecS*| ProcedureDec ProcedureDecS* |ε
+FuncDecS → FunctionHeader FPDecl FunctionBlock
+FunctionHeader →  function FunctionName (ArgumentsIdList) : Datatype;
+FunctionName   → identifier
+ArgumentsIdList → Option ParametersList : Datatype DefaultValue; ArgumentsIdList |ParametersList : Datatype DefaultValue;
+Option → const | var | ε
+DefaultValue     → ε | = Constant
+
+ParametersList → ParamatersList , identifier | identifier
+ParametersList → identifier ParametersList*
+ParametersList* → , identifier   ParametersList* | ε
+
+FPDecl    → VarDecls
+FunctionBlock           → begin FunctionStatements end;
+
+FunctionStatements → FunctionStatements ; FunctionStatement |FunctionStatement
+FunctionStatements → FunctionStatement FunctionStatements*
+FunctionStatements* → ; FunctionStatement FunctionStatements*| ε
+
+FunctionStatement    →  readln (ParametersList) | read (ParametersList)
+| identifier = AssignedValue; | writeln(ParametersList);
+| write(Content);
+| if Condition then MultipleFunctionStatementBlock C*
+| while Condition do MultipleFunctionStatementBlock
+| repeat FunctionStatements until Condition ;
+| for identifier := integer to integer do MultipleFunctionStatementBlock
+| FPCall
+| FunctionName := Constant ;
+| ε
+
+AssignedValue → Expression | string ; | identifier;
+BoolOp → < | > | = | <= | >= | <> | not | and | or | xor
+ArithmOp → MultOp | AddOp
+MultOp → * | /
+AddOp → 	+ | -
+MultipleFunctionStatementBlock→ begin FunctionStatements end ;
+| FunctionStatement;
+
+Content → Content , string  |Content , ParameterList | string| identifier
+Content → string Content* | identifier Content*
+B* → string | ParameterList
+Content* → , B* Content* | , identifier | , string |ε
+FPCall → FunctionName;|ProcedureName ; | identifier:=FunctionName;
+Condition → Expression BoolOp Expression
+
+Expression → Term | Expression AddOp Term
+Expression → Term Exp | Term
+Exp → AddOp Term Exp |ε
+
+Term → Term MultOp Factor | Factor
+Term → Factor Ter
+Ter → MultOp Factor Ter |ε
+
+Factor → identifier|(Expression)
+ProcedureDec → ProcedureHeader FPDecl ProcedureBlock
+ProcedureBlock → begin Statements end;
+ProcedureHeader →  procedure ProcedureName (ArgumentsIdList) ;
+ProcedureName → identifier
+Statements → Statements ; Statement |Statement
+Statements → Statement Statements*
+Statements* → ; Statement Statements*| ε
+Statement   →  readln (ParametersList) | read (ParametersList)
+| identifier = AssignedValue; | writeln(ParametersList);
+| write(Content);
+| if Condition then MultipleStatementBlock C*
+| while Condition do MultipleProcedureStatementBlock
+| repeat Statements until Condition ;
+| for identifier := integer to integer do MultipleProcedureStatementBlock
+| FPCall
+| ε
+C* → else MultipleStatementBlock |ε
+MultipleStatementBlock → begin Statements end;
+Block → begin Statements end .
+
+
