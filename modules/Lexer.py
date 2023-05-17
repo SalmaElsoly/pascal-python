@@ -1,8 +1,8 @@
 import re
-from .Tokenizer import Tokenizer
-from .Tokens import Token_type, Operators, ReservedWords
-from .Errors import CustomError, IncompleteString, InvalidConstant, UnknownToken
-from .Util import Position
+from modules.Tokenizer import Tokenizer
+from modules.Tokens import Token_type, Operators, ReservedWords
+from modules.Errors import CustomError, IncompleteString, InvalidConstant, UnknownToken
+from modules.Util import Position
 
 
 class Lexer:
@@ -73,11 +73,11 @@ class Lexer:
         while self.current_char is not None and (
             self.current_char.isnumeric() or self.current_char is "."
         ):
-            if self.current_char is ".":
+            if self.current_char == ".":
                 dot_count += 1
             num_str += self.current_char
             self.advance()
-        if num_str is ".":
+        if num_str == ".":
             self.tokens.append(Tokenizer(num_str, Token_type.Dot))
             return
         if (
@@ -103,8 +103,8 @@ class Lexer:
     def make_string(self):
         str_str = ""
         self.advance()
-        while self.current_char is not "'":
-            if self.current_char is "\\":
+        while self.current_char != "'":
+            if self.current_char == "\\":
                 self.advance()
             if self.current_char is None:
                 raise IncompleteString(

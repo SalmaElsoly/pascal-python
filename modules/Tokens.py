@@ -58,7 +58,8 @@ class Token_type(Enum):  # listing all tokens type
     Dot = 54
     Colon = 55
     Error = 100
-
+    Uses = 101
+    Boolean=102
 
 # Reserved word Dictionary
 ReservedWords = {
@@ -97,6 +98,9 @@ ReservedWords = {
     "repeat": Token_type.Repeat,
     "until": Token_type.Until,
     "for": Token_type.For,
+    "uses": Token_type.Uses,
+    "boolean":Token_type.Boolean,
+    "string":Token_type.String
 }
 
 Operators = {

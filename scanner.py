@@ -16,5 +16,4 @@ def Scan():
         df.to_csv("output.csv")
         print(df)
 
-
 Scan()
