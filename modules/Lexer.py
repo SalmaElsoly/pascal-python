@@ -41,7 +41,7 @@ class Lexer:
                     self.make_operator()
                 elif re.fullmatch(r"[a-zA-z]", self.current_char):
                     self.make_reserved_word_or_identifier()
-                elif self.current_char is "'":
+                elif self.current_char == "'":
                     self.make_string()
                 else:
                     raise UnknownToken(self.pos, self.current_char)
@@ -65,13 +65,13 @@ class Lexer:
         if self.current_char in "+-":
             num_str += self.current_char
             self.advance()
-        if self.current_char is ".":
+        if self.current_char == ".":
             num_str += self.current_char
             dot_count += 1
             self.advance()
 
         while self.current_char is not None and (
-            self.current_char.isnumeric() or self.current_char is "."
+            self.current_char.isnumeric() or self.current_char == "."
         ):
             if self.current_char == ".":
                 dot_count += 1

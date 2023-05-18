@@ -60,6 +60,9 @@ class Token_type(Enum):  # listing all tokens type
     Error = 100
     Uses = 101
     Boolean=102
+    Real=103
+    Integer=104
+    Char=105
 
 # Reserved word Dictionary
 ReservedWords = {
@@ -100,7 +103,9 @@ ReservedWords = {
     "for": Token_type.For,
     "uses": Token_type.Uses,
     "boolean":Token_type.Boolean,
-    "string":Token_type.String
+    "string":Token_type.String,
+    "real" : Token_type.Real,
+    "integer":Token_type.Integer
 }
 
 Operators = {

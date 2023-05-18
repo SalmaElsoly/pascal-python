@@ -6,9 +6,10 @@ Uses          →  Uses PackageList ; | Epsilon
 PackageList    →  PackageList Package , | Package
 PackageList → Package PackaList*
 PackageList* → , Package PackageList’ | ε
-
+------------------------------------------------------------------------------------
 Declsec        →   Decls ProcedureDecS
-Decls            →   VarDecls | ConstDecls |TypeDecl
+Decls            →  Option Decls | Epsilon
+Option -> VarDecls |  ConstDecls |  TypeDecl
 ---------------------------updated
 VarDecls → var VarDecl | ε
 VarDecl → VarldList : Datatype; VarDecl2

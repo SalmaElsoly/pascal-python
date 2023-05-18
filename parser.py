@@ -131,7 +131,7 @@ def DeclSection(pos):
     children.append(out_decl["node"])
  #    out_DeclarationSection=ProcedureDeclarationSection(out_decl["index"]);
  #   children.append(out_DeclarationSection["node"])
-    node = Tree("DeclSection", children)
+    node = Tree("Declaration Section", children)
     out["node"] = node
     out["index"] = out_decl["index"]
     return out
@@ -140,8 +140,6 @@ def Declarations(pos):
     children=[]
     out = dict()
     temp=Tokens[pos].to_dict()
-
-
     if temp["token_type"] == Token_type.Var:
         out_var=VarDeclarationSection(pos)
         children.append(out_var["node"])
@@ -348,38 +346,59 @@ def VarDeclarationSection (pos):
         out["index"] = out_variable_declaration["index"]
 
     else:
-        node = Tree("VarDeclarationSection", children)
+        #node = Tree("VarDeclarationSection", children)
         out["node"] = ["Epsilon"]
         out["index"] = pos
     return out
 
 #VarDecl        →  VarIdList : Datatype; VarDecl | ε
 def VarDeclaration (pos):
-    temp = Tokens[pos].to_dict()
     out = dict()
     children = []
-    print("VarDeclaratio",pos)
-    print(temp["Lex"])
-    out_id=VariableIDList(pos)
-    if out_id["node"]!=["Epsilon"]:
-        children.append(out_id["node"])
-        out_colon=Match(Token_type.Colon, out_id["index"])
-        children.append(out_colon["node"])
-        out_data=DataType(out_colon["index"])
-        children.append(out_data["node"])
-        out_semi=Match(Token_type.Semicolon, out_data["index"])
-        children.append(out_semi["node"])
-        out_vard=VarDeclaration(out_semi["index"])
-        children.append(out_vard["node"])
-        node = Tree("VarDeclaration", children)
-        out["node"] = node
-        out["index"] = out_vard["index"]
+    out_id = VariableIDList(pos)
+    children.append(out_id["node"])
+    out_colon = Match(Token_type.Colon, out_id["index"])
+    children.append(out_colon["node"])
+    out_datatype = DataType(out_colon["index"])
+    children.append(out_datatype["node"])
+    out_semi = Match(Token_type.Semicolon, out_datatype["index"])
+    children.append(out_semi["node"])
+    print("ablooooooooo")
+    print("semi index:",out_semi["index"])
+    out_var2=VarDeclaration2(out_semi["index"])
+    print("out varDec2 nodee: ", out_var2["node"])
+    #if (out_var2["node"]!=["Epsilon"]):
+    children.append(out_var2["node"])
+    node = Tree("VarDeclaration", children)
+    out["node"] = node
+    out["index"] = out_var2["index"]
+   # else :
+    #    out["node"] = ["Epsilon"]
+     #   out["index"] = out_semi["index"]
+    return out
+def VarDeclaration2(pos):
+    out = dict()
+    children = []
+    print ("VarDEC222 : ",len(Tokens),pos)
+    if(pos<len(Tokens)):
+        print("Entereddd")
+        temp = Tokens[pos].to_dict()
+        print("Token VD2:",temp["Lex"])
+        if temp["token_type"]==Token_type.Identifier:
+            out_ID=Match(Token_type.Identifier,pos)
+            children.append(out_ID["node"])
+            out_var = VarDeclaration(pos)
+            children.append(out_var["node"])
+            node = Tree("VarDeclaration2", children)
+            out["node"] = node
+            out["index"] = out_var["index"]
+        # else:
+        #     out["node"] = ["Error"]
+        #     out["index"] = pos
     else:
-        node = Tree("VarDeclaration", children)
         out["node"] = ["Epsilon"]
         out["index"] = pos
     return out
-
 
 def VariableIDList (pos):
     temp = Tokens[pos].to_dict()
@@ -393,7 +412,6 @@ def VariableIDList (pos):
     node = Tree("VariableIDList", children)
     out["node"] = node
     out["index"] = out_VariableIDList2["index"]
-    pos = out["index"]
     return out
 
 # VarldList → identifier VarldList*
@@ -541,28 +559,28 @@ def DataType(pos):
     temp = Tokens[pos].to_dict()
     out = dict()
     children=[]
-    if temp["token_type"] == Token_type.Identifier:
-        out_integer = Match(Token_type.Identifier, pos)
+    if temp["token_type"] == Token_type.Integer:
+        out_integer = Match(Token_type.Integer, pos)
         children.append(out_integer["node"])
         node = Tree("DataType", children)
         out["node"] = node
         out["index"] = out_integer["index"]
-        pos = out["index"]
 
-    elif temp["token_type"] == Token_type.Identifier:
-        out_real = Match(Token_type.Identifier, pos)
+
+    elif temp["token_type"] == Token_type.Real:
+        out_real = Match(Token_type.Real, pos)
         children.append(out_real["node"])
         node = Tree("DataType", children)
         out["node"] = node
         out["index"] = out_real["index"]
-        pos = out["index"]
-    elif temp["token_type"] == Token_type.Identifier:
-        out_char = Match(Token_type.Identifier, pos)
+
+    elif temp["token_type"] == Token_type.Char:
+        out_char = Match(Token_type.Char, pos)
         children.append(out_char["node"])
         node = Tree("DataType", children)
         out["node"] = node
         out["index"] = out_char["index"]
-        pos = out["index"]
+
 
     elif temp["token_type"] == Token_type.String:
         out_string = Match(Token_type.String, pos)
@@ -570,7 +588,7 @@ def DataType(pos):
         node = Tree("DataType", children)
         out["node"] = node
         out["index"] = out_string["index"]
-        pos = out["index"]
+
 
     elif temp["token_type"] == Token_type.Boolean:
         out_bool = Match(Token_type.Boolean, pos)
@@ -578,7 +596,7 @@ def DataType(pos):
         node = Tree("DataType", children)
         out["node"] = node
         out["index"] = out_bool["index"]
-        pos = out["index"]
+
 
     return out
 # def FunctionStatments(pos):
