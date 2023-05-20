@@ -1,6 +1,5 @@
 from enum import Enum
 
-
 class Token_type(Enum):  # listing all tokens type
     And = 1
     Array = 2

@@ -20,13 +20,11 @@ TypeDecl       →  type identifier = Datatype;
 VarldList → identifier VarldList*
 VarldList* → , identifier VarldList* |ε
 
- Datatype        →  integer| real| char| string| Boolean
-ConstDecls    → const Constld| ε
-
-ConstId   → ConstId identifier =  Constant; | identifier =  Constant;
+Datatype        →  integer| real| char| string| Boolean
+ConstDecls    → const Constld | ε
+//ConstId   → ConstId identifier =  Constant; | identifier =  Constant;
 Constld → identifier = Constant; Constld*
 Constld* →  identifier = Constant; Constld* |ε
-
 Constant →  constant | string| boolean
 
 ProcedureDecS → ProcedureDecS FuncDecS |  ProcedureDecS ProcedureDec | FuncDecS | ProcedureDec | ε
@@ -53,7 +51,7 @@ FunctionStatements* → ; FunctionStatement FunctionStatements*| ε
 
 FunctionStatement    →  readln (ParametersList) | read (ParametersList)
 | identifier = AssignedValue; | writeln(ParametersList);
-| write(Content);
+| write(Content)
 | if Condition then MultipleFunctionStatementBlock C*
 | while Condition do MultipleFunctionStatementBlock
 | repeat FunctionStatements until Condition ;
