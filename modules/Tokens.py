@@ -104,7 +104,12 @@ ReservedWords = {
     "boolean":Token_type.Boolean,
     "string":Token_type.String,
     "real" : Token_type.Real,
-    "integer":Token_type.Integer
+    "integer":Token_type.Integer,
+    "read" : Token_type.Read,
+    "readln" :Token_type.ReadLn,
+    "write" :Token_type.Write,
+    "writeln":Token_type.WriteLn,
+
 }
 
 Operators = {

@@ -6,11 +6,11 @@ Uses          →  Uses PackageList ; | Epsilon
 PackageList    →  PackageList Package , | Package
 PackageList → Package PackaList*
 PackageList* → , Package PackageList’ | ε
-------------------------------------------------------------------------------------
-Declsec        →   Decls ProcedureDecS
-Decls            →  Option Decls | Epsilon
+
+Declsec  →   Decls ProcedureDecS
+Decls    →  Option Decls | Epsilon
 Option -> VarDecls |  ConstDecls |  TypeDecl
----------------------------updated
+
 VarDecls → var VarDecl | ε
 VarDecl → VarldList : Datatype; VarDecl2
 VarDecl2 → VarDecl | ε
@@ -26,47 +26,32 @@ ConstDecls    → const Constld | ε
 Constld → identifier = Constant; Constld*
 Constld* →  identifier = Constant; Constld* |ε
 Constant →  constant | string| boolean
-
+--------------------------------------------------------------------------------------------------------------------------------
 ProcedureDecS → ProcedureDecS FuncDecS |  ProcedureDecS ProcedureDec | FuncDecS | ProcedureDec | ε
 ProcedureDecS → A* ProcedureDecS*|FuncDecS|ProcedureDec| ε
 A* →  FuncDecS | ProcedureDec
 ProcedureDecS* → FuncDecS ProcedureDecS*| ProcedureDec ProcedureDecS* |ε
-FuncDecS → FunctionHeader FPDecl FunctionBlock
-FunctionHeader →  function FunctionName (ArgumentsIdList) : Datatype;
-FunctionName   → identifier
-ArgumentsIdList → Option ParametersList : Datatype DefaultValue; ArgumentsIdList |ParametersList : Datatype DefaultValue;
-Option → const | var | ε
-DefaultValue     → ε | = Constant
 
 ParametersList → ParamatersList , identifier | identifier
 ParametersList → identifier ParametersList*
 ParametersList* → , identifier   ParametersList* | ε
+FPDecl → VarDecls
 
-FPDecl    → VarDecls
-FunctionBlock           → begin FunctionStatements end;
+FuncDecS → FunctionHeader FPDecl FunctionBlock
+FunctionHeader →  function FunctionName (ArgumentsIdList) : Datatype;
+FunctionName → identifier
+FunctionBlock → begin FunctionStatements end;
+FunctionStatements  → Statements FunctionName := Constant ;
 
-FunctionStatements → FunctionStatements ; FunctionStatement |FunctionStatement
-FunctionStatements → FunctionStatement FunctionStatements*
-FunctionStatements* → ; FunctionStatement FunctionStatements*| ε
-
-FunctionStatement    →  readln (ParametersList) | read (ParametersList)
-| identifier = AssignedValue; | writeln(ParametersList);
-| write(Content)
-| if Condition then MultipleFunctionStatementBlock C*
-| while Condition do MultipleFunctionStatementBlock
-| repeat FunctionStatements until Condition ;
-| for identifier := integer to integer do MultipleFunctionStatementBlock
-| FPCall
-| FunctionName := Constant ;
-| ε
+ArgumentsIdList → Option ParametersList : Datatype DefaultValue; ArgumentsIdList |ParametersList : Datatype DefaultValue;
+Option → const | var | ε
+DefaultValue     → ε | = Constant
 
 AssignedValue → Expression | string ; | identifier;
 BoolOp → < | > | = | <= | >= | <> | not | and | or | xor
 ArithmOp → MultOp | AddOp
 MultOp → * | /
 AddOp → 	+ | -
-MultipleFunctionStatementBlock→ begin FunctionStatements end ;
-| FunctionStatement;
 
 Content → Content , string  |Content , ParameterList | string| identifier
 Content → string Content* | identifier Content*
@@ -88,20 +73,26 @@ ProcedureDec → ProcedureHeader FPDecl ProcedureBlock
 ProcedureBlock → begin Statements end;
 ProcedureHeader →  procedure ProcedureName (ArgumentsIdList) ;
 ProcedureName → identifier
-Statements → Statements ; Statement |Statement
+
+--------------------------------Statements → Statements ; Statement | Statement
 Statements → Statement Statements*
 Statements* → ; Statement Statements*| ε
-Statement   →  readln (ParametersList) | read (ParametersList)
+
+
+Statement   → readln (ParametersList) | read (ParametersList)
 | identifier = AssignedValue; | writeln(ParametersList);
 | write(Content);
-| if Condition then MultipleStatementBlock C*
+| if Condition then IfStatOption
 | while Condition do MultipleProcedureStatementBlock
 | repeat Statements until Condition ;
 | for identifier := integer to integer do MultipleProcedureStatementBlock
 | FPCall
 | ε
-C* → else MultipleStatementBlock |ε
-MultipleStatementBlock → begin Statements end;
+
+ifStatOption --> MultipleStatementBlock IfElseOption | Statment IfElseOption
+
+IfElseOption → else MultipleStatementBlock | ε
+MultipleStatementBlock → begin Statements end; | statement;
 Block → begin Statements end .
 
 
