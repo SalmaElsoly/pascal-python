@@ -124,12 +124,18 @@ def PackageList2(pos):
 def DeclSection(pos):
     children = []
     out = dict()
-    out_decl = Declarations(pos)
-    children.append(out_decl["node"])
+    # out_decl = Declarations(pos)
+    # children.append(out_decl["node"])
+    out_proc = ProcedureDeclarationSection(pos)
+    children.append(out_proc["node"])
     node = Tree("Declaration Section", children)
     out["node"] = node
-    out["index"] = out_decl["index"]
+    out["index"] = out_proc["index"]
     return out
+    # node = Tree("Declaration Section", children)
+    # out["node"] = node
+    # out["index"] = out_decl["index"]
+    # return out
 
 def Declarations (pos):
     children = []
@@ -304,23 +310,15 @@ def FunctionName(pos):
     out["node"] = node
     out["index"] = out_iden["index"]
     return out
-def FPDecl(pos):
-    children = []
-    out = dict()
-    out_VarDec = VarDeclarationSection (pos)
-    children.append(out_VarDec["node"])
-    node = Tree("FPDecl", children)
-    out["node"] = node
-    out["index"] =  out_VarDec["index"]
-    return out
+
 def FunctionBlock( pos):
     children = []
     out = dict()
     out_begin = Match(Token_type.Begin, pos)
     children.append(out_begin["node"])
-    out_FuncStat= FunctionStatments(out_begin["index"])
-    children.append(out_FuncStat["node"])
-    out_end = Match(Token_type.End, out_FuncStat["index"])
+   # out_FuncStat= FunctionStatments(out_begin["index"])
+    #children.append(out_FuncStat["node"])
+    out_end = Match(Token_type.End, out_begin["index"])#todo don't forget to change the index
     children.append(out_end["node"])
     out_semicolon = Match(Token_type.Semicolon, out_end["index"])
     children.append(out_semicolon["node"])
@@ -342,11 +340,6 @@ def FunctionBlock( pos):
 #     children.append(out_dataType1["node"])
 #     out_defValue = DefaultValue(out_dataType1["index"])
 #     children.append(out_defValue["node"])
-
-
-#VarDecls       → var VarDecl  |var VarDecl | ε
-#VarDecl        →  VarIdList : Datatype; VarDecl | ε
-
 
 def VarDeclarationSection (pos):
     print("VarDeclarationSection pos:",pos)
@@ -591,50 +584,7 @@ def ConstID2(pos):
         out["index"] = pos
         return out
 
-def DataType(pos):
-    temp = Tokens[pos].to_dict()
-    out = dict()
-    children=[]
-    if temp["token_type"] == Token_type.Integer:
-        out_integer = Match(Token_type.Integer, pos)
-        children.append(out_integer["node"])
-        node = Tree("DataType", children)
-        out["node"] = node
-        out["index"] = out_integer["index"]
 
-
-    elif temp["token_type"] == Token_type.Real:
-        out_real = Match(Token_type.Real, pos)
-        children.append(out_real["node"])
-        node = Tree("DataType", children)
-        out["node"] = node
-        out["index"] = out_real["index"]
-
-    elif temp["token_type"] == Token_type.Char:
-        out_char = Match(Token_type.Char, pos)
-        children.append(out_char["node"])
-        node = Tree("DataType", children)
-        out["node"] = node
-        out["index"] = out_char["index"]
-
-
-    elif temp["token_type"] == Token_type.String:
-        out_string = Match(Token_type.String, pos)
-        children.append(out_string["node"])
-        node = Tree("DataType", children)
-        out["node"] = node
-        out["index"] = out_string["index"]
-
-
-    elif temp["token_type"] == Token_type.Boolean:
-        out_bool = Match(Token_type.Boolean, pos)
-        children.append(out_bool["node"])
-        node = Tree("DataType", children)
-        out["node"] = node
-        out["index"] = out_bool["index"]
-
-
-    return out
 # def FunctionStatments(pos):
 #     out=dict()
 #     children=[]
@@ -647,28 +597,8 @@ def DataType(pos):
 #     out["index"] = out_FunctionStatmentsAST["index"]
 #     return out
 
-# def FunctionStatments2(pos):
-#     temp = Tokens[pos].to_dict()
-#     out = dict()
-#     children = []
-#     if temp["token_type"] == Token_type.Semicolon:
-#         out_semicolon = Match(Token_type.Semicolon, pos)
-#         children.append(out_semicolon["node"])
-#         out_FunctionStatment = FunctionStatment(out_semicolon["index"])
-#         children.append( out_FunctionStatment["node"])
-#         out_FunctionStatmentsAST = FunctionStatments2(out_FunctionStatment["index"])
-#         children.append(out_FunctionStatmentsAST["node"])
-#         node = Tree("FunctionStatments2", children)
-#         out["node"] = node
-#         out["index"] = out_FunctionStatmentsAST["index"]
-#         pos = out["index"]
-#         return out
-#     else:
-        # out["node"] = ["Epsilon"]
-        # out["index"] = pos
-        # return out
 
-# def FunctionStatment(pos):
+
 
 def Match(a, pos):  # given token type and index and give dict(node,key)
     output = dict()
