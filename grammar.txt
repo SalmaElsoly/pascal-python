@@ -14,8 +14,11 @@ Option -> VarDecls |  ConstDecls |  TypeDecl
 VarDecls → var VarDecl | ε
 VarDecl → VarldList : Datatype; VarDecl2
 VarDecl2 → VarDecl | ε
-TypeDecl       →  type identifier = Datatype;
 
+
+TypeDecl →  type identifier = Datatype;
+TypeDecl → VarIDList = Datatype ; TypeDecl2
+TypeDecl2 → TypeDecl | ε
 ---------------------------------------VarIdList  →  VarIdList, identifier | identifier
 VarldList → identifier VarldList*
 VarldList* → , identifier VarldList* |ε
@@ -51,20 +54,20 @@ AssignedValue → Expression | string ; | identifier;
 BoolOp → < | > | = | <= | >= | <> | not | and | or | xor
 ArithmOp → MultOp | AddOp
 MultOp → * | /
-AddOp → 	+ | -
+AddOp → + | -
 
 Content → Content , string  |Content , ParameterList | string| identifier
 Content → string Content* | identifier Content*
 B* → string | ParameterList
 Content* → , B* Content* | , identifier | , string |ε
 FPCall → FunctionName;|ProcedureName ; | identifier:=FunctionName;
-Condition → Expression BoolOp Expression
+Condition → (Expression) BoolOp (Expression)
 
-Expression → Term | Expression AddOp Term
-Expression → Term Exp | Term
+----------------------------Expression → Term | Expression AddOp Term
+Expression → Term Exp
 Exp → AddOp Term Exp |ε
 
-Term → Term MultOp Factor | Factor
+---------------------------------Term → Term MultOp Factor | Factor
 Term → Factor Ter
 Ter → MultOp Factor Ter |ε
 
