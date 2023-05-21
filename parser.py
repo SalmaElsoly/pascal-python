@@ -22,7 +22,6 @@ def find_token(text):
     global Tokens
     Tokens=lexemes
 
-# statment: read identifier /write identifier
 def Parse():
     pos = 0
     Children = []
@@ -34,14 +33,7 @@ def Parse():
     # Children.append(block_main["node"])
     Node = Tree('Program', Children) # given non-terminal and its children
     return Node
-# program pay_calculation ;
-# const
-# tax_deduction = 10000;
-# bonus = 50000;
-# basic_pay = 40000;
-#
-# var
-# total_pay, final_pay : real;
+
 def Header(pos):
     children = []
     out = dict()
@@ -138,6 +130,7 @@ def DeclSection(pos):
     out["node"] = node
     out["index"] = out_decl["index"]
     return out
+
 def Declarations (pos):
     children = []
     out = dict()
@@ -404,6 +397,8 @@ def VarDeclaration (pos):
     return out
 
 #todo :  lzm main block yb2a mmwgod w ila error message lzm tzhar
+
+
 def VarDeclaration2(pos):
     out = dict()
     children = []

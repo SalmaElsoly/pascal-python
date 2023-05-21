@@ -62,6 +62,11 @@ class Token_type(Enum):  # listing all tokens type
     Real=103
     Integer=104
     Char=105
+    Read=106
+    ReadLn=107
+    Write=108
+    WriteLn=109
+
 
 # Reserved word Dictionary
 ReservedWords = {
@@ -108,7 +113,7 @@ ReservedWords = {
     "read" : Token_type.Read,
     "readln" :Token_type.ReadLn,
     "write" :Token_type.Write,
-    "writeln":Token_type.WriteLn,
+    "writeln":Token_type.WriteLn
 
 }
 
