@@ -66,6 +66,8 @@ class Token_type(Enum):  # listing all tokens type
     ReadLn=107
     Write=108
     WriteLn=109
+    Xor=110
+
 
 
 # Reserved word Dictionary
@@ -113,7 +115,8 @@ ReservedWords = {
     "read" : Token_type.Read,
     "readln" :Token_type.ReadLn,
     "write" :Token_type.Write,
-    "writeln":Token_type.WriteLn
+    "writeln":Token_type.WriteLn,
+    "xor":Token_type.Xor
 
 }
 
@@ -129,6 +132,7 @@ Operators = {
     ">": Token_type.GreaterThanOp,
     ">=": Token_type.GreaterThanOrEqualOp,
     "<=": Token_type.SmallerThanOrEqualOp,
+    "<>":Token_type.NotEqualOp,
     # Parenthesis
     "(": Token_type.OpenParenthesis,
     ")": Token_type.CloseParenthesis,
