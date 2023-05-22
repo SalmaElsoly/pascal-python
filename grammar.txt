@@ -35,22 +35,23 @@ Constant →  constant | string| boolean
 -------------------------------ProcedureDecS → ProcedureDecS FuncDecS |  ProcedureDecS ProcedureDec | FuncDecS | ProcedureDec | ε
 ProcedureDecS → FP ProcedureDecS*| ε
 FP →  FuncDecS | ProcedureDec
-ProcedureDecS* → FuncDecS ProcedureDecS| ProcedureDec ProcedureDecS |ε
+ProcedureDecS* → FuncDecS ProcedureDecS*| ProcedureDec ProcedureDecS* |ε
 
 ParametersList → ParamatersList , identifier | identifier
 ParametersList → identifier ParametersList*
 ParametersList* → , identifier   ParametersList* | ε
 
 -------------------------------------------Function---------------------------------------------------
-
-
 FuncDecS → FunctionHeader VarDecls FunctionBlock
 FunctionHeader →  function FunctionName (ArgumentsIdList) : Datatype;
 FunctionName → identifier
 FunctionBlock → begin FunctionStatements end;
 FunctionStatements  → Statements FunctionName := Constant ;
+-------------------------------------------------ArgumentsIdList → Option ParametersList : Datatype DefaultValue; ArgumentsIdList |ParametersList : Datatype DefaultValue;
+ArgumentsIdList → OptionArg ParametersList : Datatype DefaultValue ArgsEnd
+ArgsEnd  ; ArgumentsIdList|epislon
 
-ArgumentsIdList → Option ParametersList : Datatype DefaultValue; ArgumentsIdList |ParametersList : Datatype DefaultValue;
+
 OptionArg → const | var | ε
 DefaultValue     → ε | = Constant
 
@@ -66,7 +67,7 @@ Content → string Content* | identifier Content*
 
 Content* → , B* Content* | , identifier | , string |ε
 B* → string | ParameterList
-FPCall → FunctionName;|ProcedureName ; | identifier:=FunctionName;
+FPCall → identifier; | identifier:=FunctionName;
 Condition → (Expression) BoolOp (Expression)
 
 ----------------------------Expression → Term | Expression AddOp Term

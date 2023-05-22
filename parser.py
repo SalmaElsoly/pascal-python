@@ -1,7 +1,8 @@
 
-#todo Package grammar what type will be package because identifier is noot correct , uses token type,
+#todo Package grammar what type will be package because identifier is not correct , uses token type,
 #todo type is a datatype for example in pdf, tokentype of string , tokentype Integer , real,char in function datatype
-
+#todo comments
+#todo in option in procedure declaration var does not work
 import tkinter as tk
 from enum import Enum
 import re
@@ -62,7 +63,6 @@ def ProgramID(pos):
     return out
 
 def Uses(pos):
-
     out=dict()
     children=[]
     if (pos < len(Tokens)):
@@ -124,26 +124,22 @@ def PackageList2(pos):
 def DeclSection(pos):
     children = []
     out = dict()
-    #out_decl = Declarations(pos)
-    #children.append(out_decl["node"])
-    out_proc=ProcedureDeclarationSection(pos)
+    out_decl = Declarations(pos)
+    children.append(out_decl["node"])
+    out_proc=ProcedureDeclarationSection(out_decl["index"])
     children.append(out_proc["node"])
     node = Tree("Declaration Section", children)
     out["node"] = node
     out["index"] = out_proc["index"]
     return out
 
-    # node = Tree("Declaration Section", children)
-    # out["node"] = node
-    # out["index"] = out_decl["index"]
-    # return out
 
 def ProcedureDeclarationSection(pos):
     children = []
     out = dict()
     if (pos < len(Tokens)):
         temp = Tokens[pos].to_dict()
-        if temp["token_type"]==Token_type.Procedure or temp["token_type"]==Token_type.Procedure:
+        if temp["token_type"]==Token_type.Function or temp["token_type"]==Token_type.Procedure:
             out_FP=FP(pos)
             children.append(out_FP["node"])
             out_Proc2=ProcedureDeclarationSection2(out_FP["index"])
@@ -151,6 +147,7 @@ def ProcedureDeclarationSection(pos):
             node = Tree("ProcedureDeclarationSection", children)
             out["node"]=node
             out["index"]=out_Proc2["index"]
+        #todo here will be the declaration of the error instead of Epsilon
         else:
             out["node"] = ["Epsilon"]
             children.append(out["node"])
@@ -167,11 +164,26 @@ def FP(pos):
     children = []
     out = dict()
     if (pos < len(Tokens)):
-        out_ProcDecS=ProcedureDec(pos)
-        children.append(out_ProcDecS["node"])
-        node = Tree("FP", children)
-        out["node"] = node
-        out["index"] = out_ProcDecS["index"]
+        temp = Tokens[pos].to_dict()
+        if temp["token_type"]==Token_type.Procedure:
+            out_ProcDecS=ProcedureDec(pos)
+            children.append(out_ProcDecS["node"])
+            node = Tree("FP", children)
+            out["node"] = node
+            out["index"] = out_ProcDecS["index"]
+
+        elif temp["token_type"]==Token_type.Function:
+            out_Function_Decleration = FunctionDeclarationSection(pos)
+            children.append(out_Function_Decleration["node"])
+            node = Tree("FP", children)
+            out["node"] = node
+            out["index"] = out_Function_Decleration["index"]
+        # todo : error to be implemented here
+        else:
+            out["node"] = ["Epsilon"]
+            children.append(out["node"])
+            out["index"] = pos
+            node = Tree("FP", children)
 
     else:
         out["node"] = ["Epsilon"]
@@ -432,6 +444,15 @@ def ProcedureDeclarationSection2(pos):
             node = Tree("ProcedureDeclarationSection2", children)
             out["node"] = node
             out["index"] = out_pd2["index"]
+        elif temp["token_type"]==Token_type.Function:
+            out_fd = FunctionDeclarationSection(pos)
+            children.append(out_fd["node"])
+            out_pd2 = ProcedureDeclarationSection2(out_fd["index"])
+            children.append(out_pd2["node"])
+            node = Tree("ProcedureDeclarationSection2", children)
+            out["node"] = node
+            out["index"] = out_pd2["index"]
+
         else:
             out["node"] = ["Epsilon"]
             children.append(out["node"])
@@ -458,6 +479,13 @@ def Declarations (pos):
             node = Tree("Declarations ", children)
             out["node"] = node
             out["index"] = out_Declaration["index"]
+        else:
+            out["node"] = ["Epsilon"]
+            children.append(out["node"])
+            out["index"] = pos
+            node = Tree("Declarations", children)
+            # out["node"] = ["Epsilon"]
+            # out["index"] = pos
     else :
         out["node"] = ["Epsilon"]
         children.append(out["node"])
@@ -492,38 +520,19 @@ def DeclarationOptions(pos):
         out["index"]=out_const["index"]
     return out
 
-# def FPDec2(pos):
-#     temp = Tokens[pos].to_dict()
-#     out = dict()
-#     children = []
-#     out_function = FunctionDecS(pos)
-#     children.append(out_function["node"])
-#     node = Tree("FPDec2", children)
-#     out["node"] = node
-#     out["index"] = out_function["index"]
-#     return out
-#
-#     out_procedure = ProcedureDecS(pos)
-#     children.append(out_procedure["node"])
-#     node = Tree("FPDec2", children)
-#     out["node"] = node
-#     out["index"] = out_procedure["index"]
-#     return out
-
-
-# def FunctionDecS(pos):
-#     children = []
-#     out = dict()
-#     out_FuncH = FunctionHeader(pos)
-#     children.append(out_FuncH["node"])
-#     out_FPDecl = FPDecl(out_FuncH["index"])
-#     children.append(out_FPDecl["node"])
-#     out_FuncBl = FunctionBlock(out_FPDecl["index"])
-#     children.append(out_FuncBl["node"])
-#     node = Tree("FunctionDecs", children)
-#     out["node"] = node
-#     out["index"] =out_FuncBl["index"]
-#     return out
+def FunctionDeclarationSection(pos):
+    children = []
+    out = dict()
+    out_Function_Header = FunctionHeader(pos)
+    children.append( out_Function_Header["node"])
+    out_FPDecl = VarDeclarationSection(out_Function_Header["index"])
+    children.append(out_FPDecl["node"])
+    out_Func_Block = FunctionBlock(out_FPDecl["index"])
+    children.append(out_Func_Block["node"])
+    node = Tree("FunctionDecSection", children)
+    out["node"] = node
+    out["index"] =out_Func_Block["index"]
+    return out
 
 def FunctionHeader(pos):
     children = []
@@ -534,15 +543,15 @@ def FunctionHeader(pos):
     children.append(out_FunctionName["node"])
     out_bracket = Match(Token_type.OpenParenthesis , out_FunctionName["index"])
     children.append(out_bracket["node"])
-    out_ArgIdList = ArgumentsIdList(out_bracket["index"])
+    out_ArgIdList = ArgumentIDList(out_bracket["index"])
     children.append(out_ArgIdList["node"])
     out_bracket2 = Match(Token_type.CloseParenthesis, out_ArgIdList["index"])
     children.append(out_bracket2["node"])
     out_colon = Match(Token_type.Colon, out_bracket2["index"])
     children.append(out_colon["node"])
-    out_dataType1 = DataType(out_colon["index"])
-    children.append(out_dataType1["node"])
-    out_semicolon = Match(Token_type.Semicolon, out_dataType1["index"])
+    out_dataType = DataType(out_colon["index"])
+    children.append(out_dataType["node"])
+    out_semicolon = Match(Token_type.Semicolon, out_dataType["index"])
     children.append(out_semicolon["node"])
     node = Tree("FunctionHeader", children)
     out["node"] = node
@@ -597,7 +606,50 @@ def VarDeclarationSection (pos):
         node = Tree("VarDeclarationSection", children)
         out["index"] = pos
     return out
+def DataType(pos):
+    temp = Tokens[pos].to_dict()
+    out = dict()
+    children=[]
+    if temp["token_type"] == Token_type.Integer:
+        out_integer = Match(Token_type.Integer, pos)
+        children.append(out_integer["node"])
+        node = Tree("DataType", children)
+        out["node"] = node
+        out["index"] = out_integer["index"]
 
+
+    elif temp["token_type"] == Token_type.Real:
+        out_real = Match(Token_type.Real, pos)
+        children.append(out_real["node"])
+        node = Tree("DataType", children)
+        out["node"] = node
+        out["index"] = out_real["index"]
+
+    elif temp["token_type"] == Token_type.Char:
+        out_char = Match(Token_type.Char, pos)
+        children.append(out_char["node"])
+        node = Tree("DataType", children)
+        out["node"] = node
+        out["index"] = out_char["index"]
+
+
+    elif temp["token_type"] == Token_type.String:
+        out_string = Match(Token_type.String, pos)
+        children.append(out_string["node"])
+        node = Tree("DataType", children)
+        out["node"] = node
+        out["index"] = out_string["index"]
+
+
+    elif temp["token_type"] == Token_type.Boolean:
+        out_bool = Match(Token_type.Boolean, pos)
+        children.append(out_bool["node"])
+        node = Tree("DataType", children)
+        out["node"] = node
+        out["index"] = out_bool["index"]
+
+
+    return out
 
 def VarDeclaration (pos):
     out = dict()
@@ -818,19 +870,6 @@ def ConstID2(pos):
         node = Tree("ConstID2", children)
         out["index"] = pos
         return out
-
-
-# def FunctionStatments(pos):
-#     out=dict()
-#     children=[]
-#     out_functionstatment= FunctionStatment(pos)
-#     children.append(out_functionstatment["node"])
-#     out_functionstatmentsAST=FunctionStatments2(out_functionstatment["index"])
-#     children.append(out_functionstatmentAST["node"])
-#     node = Tree("FunctionStatments",children)
-#     out["node"] = node
-#     out["index"] = out_FunctionStatmentsAST["index"]
-#     return out
 
 
 
