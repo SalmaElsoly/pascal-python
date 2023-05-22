@@ -976,39 +976,112 @@ def Factor(pos):
         out["index"]=out_closeparen["index"]
     return out
 
-def FPCall(pos):
+def FPCallOrAssi(pos):
     children=[]
     out=dict()
     out_identifier=Match(Token_type.Identifier,pos)
     children.append(out_identifier["node"])
-    out_fpcall2=FPCall2(out_identifier["index"])
-    children.append(out_fpcall2["node"])
-    node=Tree("FPCall",children)
+    out_fpcallorassi2=FPCallOrAssi2(out_identifier["index"])
+    children.append(out_fpcallorassi2["node"])
+    node=Tree("FPCallOrAssi",children)
     out["node"]=node
-    out["index"]=out_fpcall2["index"]
+    out["index"]=out_fpcallorassi2["index"]
     return out
 
-def FPCall2(pos):
+def FPCallOrAssi2(pos):
+    children=[]
+    out=dict()
+    if (pos < len(Tokens)):
+        temp=Tokens[pos].to_dict()
+        if temp["token_type"] == Token_type.Colon:
+            out_colon=Match(Token_type.Colon,pos)
+            children.append(out_colon["node"])
+            out_eq=Match(Token_type.EqualOp,out_colon["index"])
+            children.append(out_eq["node"])
+            out_fpcallorassi3=FPCallOrAssi3(out_eq["index"])
+            children.append(out_fpcallorassi3["node"])
+            node=Tree("FPCallOrAssi2",children)
+            out["node"]=node
+            out["index"]=out_fpcallorassi3["index"]
+            return out
+        elif temp["token_type"]==Token_type.OpenParenthesis:
+            out_open=Match(Token_type.OpenParenthesis,pos)
+            children.append(out_open["node"])
+            out_parameterlist=ParametersList(out_open["index"])
+            children.append(out_parameterlist["node"])
+            out_close=Match(Token_type.CloseParenthesis,out_parameterlist["index"])
+            children.append(out_close["node"])
+            node=Tree("FPCallOrAssi2",children)
+            out["node"]=node
+            out["index"]=out_close["index"]
+            return out
+        else:
+            out["node"] = ["Epsilon"]
+            children.append(out["node"])
+            node = Tree("FPCallOrAssi2", children)
+            out["index"] = pos
+            return out
+    else:
+        out["node"] = ["Epsilon"]
+        children.append(out["node"])
+        node = Tree("FPCallOrAssi2", children)
+        out["index"] = pos
+        return out
+
+def FPCallOrAssi3(pos):
     children=[]
     out=dict()
     temp=Tokens[pos].to_dict()
-    if temp["token_type"]==Token_type.Semicolon:
-        out_semi=Match(Token_type.Semicolon,pos)
-        children.append(out_semi["node"])
-        node=Tree("FPCall2",children)
-        out["node"]=node
-        out["index"]=out_semi["index"]
-    elif temp["token_type"]== Token_type.Colon:
-        out_colon=Match(Token_type.Colon,pos)
-        children.append(out_colon["node"])
-        out_eq=Match(Token_type.EqualOp,out_colon["index"])
-        children.append(out_eq["node"])
-        out_identifier=Match(Token_type.Identifier,out_eq["index"])
+    if temp["token_type"] == Token_type.Identifier:
+        out_identifier=Match(Token_type.Identifier,pos)
         children.append(out_identifier["node"])
-        node = Tree ("FPCall2",children)
+        out_fpcall4=FPCallOrAssi4(out_identifier["index"])
+        children.append(out_fpcall4["node"])
+        node = Tree("FPCallOrAssi3",children)
         out["node"]=node
-        out["index"]=out_identifier["index"]
-    return out
+        out["index"]=out_fpcall4["index"]
+        return out
+    else:
+        out_assigned=AssignedValue(pos)
+        children.append(out_assigned)
+        node=Tree("FPCallOrAssi3",children)
+        out["node"]=node
+        out["index"]=out_assigned["index"]
+        return out
+
+def FPCallOrAssi4(pos):
+    children = []
+    out = dict()
+    if (pos < len(Tokens)):
+        temp = Tokens[pos].to_dict()
+        if temp["token_type"]==Token_type.OpenParenthesis:
+            out_open=Match(Token_type.OpenParenthesis,pos)
+            children.append(out_open["node"])
+            out_parameterlist=ParametersList(out_open["index"])
+            children.append(out_parameterlist["node"])
+            out_close=Match(Token_type.CloseParenthesis,out_parameterlist["index"])
+            children.append(out_close["node"])
+            node=Tree("FPCallOrAssi2",children)
+            out["node"]=node
+            out["index"]=out_close["index"]
+            return out
+        else:
+            out["node"] = ["Epsilon"]
+            children.append(out["node"])
+            node = Tree("FPCallOrAssi4", children)
+            out["index"] = pos
+            return out
+    else:
+        out["node"] = ["Epsilon"]
+        children.append(out["node"])
+        node = Tree("FPCallOrAssi4", children)
+        out["index"] = pos
+        return out
+
+
+
+
+
 
 
 

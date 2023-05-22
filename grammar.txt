@@ -69,6 +69,11 @@ B* → string | ParameterList
 FPCall → identifier; | identifier:=FunctionName;
 Condition → Expression BoolOp Expression | ( Condition )
 
+FPCallOrAssi -> identifier FPCallOrAssi2
+FPCallOrAssi2 -> Epsilon | := FPCallOrAssi3 | (Paramaterist)
+FPCallOrAssi3 -> identifier FPCallOrAssi4 | AssignedValue
+FPCallOrAssi4 -> Epsilon | (ParameterList)
+
 ----------------------------Expression → Term | Expression AddOp Term
 Expression → Term Exp
 Exp → AddOp Term Exp |ε
