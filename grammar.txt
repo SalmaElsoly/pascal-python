@@ -46,14 +46,15 @@ FuncDecS → FunctionHeader VarDecls FunctionBlock
 FunctionHeader →  function FunctionName (ArgumentsIdList) : Datatype;
 FunctionName → identifier
 FunctionBlock → begin FunctionStatements end;
-FunctionStatements  → Statements FunctionName := Constant ;
+FunctionStatements  → Statements FunctionName := AssignedValue ;
+
 -------------------------------------------------ArgumentsIdList → Option ParametersList : Datatype DefaultValue; ArgumentsIdList |ParametersList : Datatype DefaultValue;
 ArgumentsIdList → OptionArg ParametersList : Datatype DefaultValue ArgsEnd
 ArgsEnd  ; ArgumentsIdList|epislon
 
 
 OptionArg → const | var | ε
-DefaultValue     → ε | = Constant
+DefaultValue → ε | = Constant
 
 ---------------------------------------------------------------------------------------------------------------------
 AssignedValue → Expression | string ; | identifier;
@@ -62,12 +63,15 @@ ArithmOp → MultOp | AddOp
 MultOp → * | /
 AddOp → + | -
 
-Content → Content , string  |Content , ParameterList | string| identifier
-Content → string Content* | identifier Content*
+-----------------------------Content → Content , string  |Content , ParameterList | string| identifier
+Content → string Content2 | identifier Content2
+Content2→ , LeftFctorContent|ε
+LeftFctorContent  LeftFctorContent2 Content2 | identifier | string
+LeftFctorContent2 → string | ParameterList
+--------------------------------------FPCall → identifier; | identifier:=FunctionName;
+FPCall → identifier FPCall2
+FPCall2 ;|:= FunctionName;
 
-Content* → , B* Content* | , identifier | , string |ε
-B* → string | ParameterList
-FPCall → identifier; | identifier:=FunctionName;
 Condition → (Expression) BoolOp (Expression)
 
 ----------------------------Expression → Term | Expression AddOp Term
@@ -81,23 +85,37 @@ Factor → identifier|(Expression)
 
 
 ///////////////////////////////////////////////////Draft Area///////////////////////////////////////////////////////
-X-> identifier = AssignedValue;
-| writeln(ParametersList);
-| write(Content); | readln (ParametersList) | read (ParametersList)
+AtomicStatements->
+ FPCallOrAssignemnt |
+| writeln(ParametersList)
+| write(Content) | readln (ParametersList) | read (ParametersList)
+
+-------------------------FPCallOrAssignemnt ->  ProcedureCall |identifier := identifier |  identifier:= identifier(Parameterlist)
+ProcedureCall ->  indentifier |  identifier(Parameterlist)
+
+FPCallOrAssignemnt -> identifier FunctionCall2
+FunctionCallAssignemnt 2 -> Epsilon | := FunctionCallAssignemnt3 | (ParamaterList)
+FunctionCallAssignemnt 3 -> identifier FunctionCallAssignemnt4 | AssignedValue
+FunctionCallAssignemnt 4 -> Epsilon | (ParameterList)
 
 IF -> if Condition then IfStatOption
 
-Statement  → X |
+Statements → Statement Statements*
+Statements* → ; Statement Statements*| ε
+Statement  → AtomicStatements |
 | IF
-| While
+| while Condition do MultipleStatementBlock
 | repeat Statements until Condition ;
-| for identifier := integer to integer do MultipleProcedureStatementBlock
-| FPCall
+| for identifier := integer to integer do MultipleStatementBlock
 | ε
 
-MultipleStatementBlock → begin Statements end; | X;
-ifStatOption --> MultipleStatementBlock IfElseOption | X IfElseOption
-IfElseOption → else MultipleStatementBlock | ε
+ifStateOption  MultipleStatmentBlockIF StatBlock
+StatBlock  else multiplestatmentBlockIF ;|;
+MultipleStatementBlockIF → begin Statements end | AtomicStatements
+-----------------------Old-----------------------------------------
+MultipleStatementBlock → begin Statements end; | AtomicStatements ;
+MultipleStatementBlockIF → begin Statements end | AtomicStatements
+ifStatOption --> MultipleStatementBlockIf else MultipleStatementBlock | MultipleStatementBlock
 
 ////////////////////////////////////////End Draft Area//////////////////////////////////////////////////////////////////
 
@@ -106,7 +124,7 @@ IfElseOption → else MultipleStatementBlock | ε
 --------------------------------Statements → Statements ; Statement | Statement
 Statements → Statement Statements*
 Statements* → ; Statement Statements*| ε
-Statement  → readln (ParametersList) | read (ParametersList)
+Statement → readln (ParametersList) | read (ParametersList)
 | identifier = AssignedValue; | writeln(ParametersList);
 | write(Content);
 | if Condition then IfStatOption

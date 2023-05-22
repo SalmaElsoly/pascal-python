@@ -160,7 +160,7 @@ def ProcedureDeclarationSection(pos):
         node = Tree("ProcedureDeclarationSection", children)
     return out
 
-def FP(pos):
+def FP(pos): #Function/Procedure
     children = []
     out = dict()
     if (pos < len(Tokens)):
@@ -837,7 +837,6 @@ def Constant(pos):
         return out
 
 def ConstID2(pos):
-
     out = dict()
     children = []
     if (pos < len(Tokens)):
@@ -871,9 +870,256 @@ def ConstID2(pos):
         out["index"] = pos
         return out
 
+def MainBlock(pos):
+    children = []
+    out = dict()
+    if (pos < len(Tokens)):
+        temp = Tokens[pos].to_dict()
+        if temp["token_type"]==Token_type.Begin:
+            out_begin=Match(Token_type.Begin,pos)
+            children.append(out_begin["node"])
+            out_end=Match(Token_type.End,out_begin["index"])
+            children.append(out_end["node"])
+            out_dot=Match(Token_type.Dot,out_end["index"])
+            children.append(out_dot["node"])
+            node = Tree("MainBlock", children)
+            out["node"] = node
+            out["index"] = out_dot["index"]
+
+    else:
+            out["node"] = ["Epsilon"]
+            children.append(out["node"])
+            out["index"] = pos
+            node = Tree("MainBlock", children)
+    return out
+def Statements (pos):
+    children = []
+    out = dict()
+    out_Statement = Statement (pos)
+    children.append(out_Statement["node"])
+    out_StatementAux = Match(Token_type.End, out_Statement["index"])
+    children.append(out_StatementAux["node"])
+    node = Tree("Statements", children)
+    out["node"] = node
+    out["index"] = out_StatementAux["index"]
+    return out
+def Statement (pos):
+    children = []
+    out = dict()
+    if (pos < len(Tokens)):
+        temp = Tokens[pos].to_dict()
+        if (temp["token_type"] == Token_type.Read or temp["token_type"] == Token_type.Write
+            or temp["token_type"] == Token_type.WriteLn or temp["token_type"] == Token_type.ReadLn or temp["token_type"] == Token_type.Identifier ):
+            out_Atomic_Statements=AtomicStatements(pos)
+            children.append(out_Atomic_Statements["node"])
+            node = Tree("Statement", children)
+            out["node"] = node
+            out["index"] = out_Atomic_Statements["index"]
+        elif temp["token_type"] == Token_type.If:
+            out_If=IF(pos)
+            children.append(out_If["node"])
+            node = Tree("Statement", children)
+            out["node"] = node
+            out["index"] = out_If["index"]
+        elif temp["token_type"] == Token_type.While :
+            out_While = Match(Token_type.While,pos)
+            children.append(out_While["node"])
+            out_cond = Condition(out_While["index"])
+            children.append(out_cond["node"])
+            out_do = Match(Token_type.Do,out_cond["index"])
+            children.append(out_do["node"])
+            out_MultipleStatementBlock=MultipleStatementBlock(out_do["index"])
+            children.append(out_MultipleStatementBlock["node"])
+            node = Tree("Statement", children)
+            out["node"] = node
+            out["index"] =out_MultipleStatementBlock["index"]
+        elif temp["token_type"] == Token_type.Repeat:
+            out_repeat=Match(Token_type.Repeat,pos)
+            children.append(out_repeat["node"])
+            out_Statements=Statements(out_repeat["index"])
+            children.append(out_Statements["node"])
+            out_until = Match(Token_type.Until,out_Statements["index"])
+            children.append(out_until["node"])
+            out_condition= Condition(out_until["index"])
+            children.append(out_condition["node"])
+            node = Tree("Statement", children)
+            out["node"] = node
+            out["index"] = out_condition["index"]
+        elif temp["token_type"] == Token_type.For:
+            out_for=Match(Token_type.For,pos)
+            children.append(out_for["node"])
+            out_id=Match(Token_type.Identifier,out_for["index"])
+            children.append(out_id["index"])
+            out_colon=Match(Token_type.Colon,out_id["index"])
+            children.append(out_colon["index"])
+            out_equal = Match(Token_type.EqualOp, out_colon["index"])
+            children.append(out_equal["index"])
+            out_integer =Match(Token_type.Integer, out_equal["index"])
+            children.append(out_integer["index"])
+            out_to=Match(Token_type.To, out_integer["index"])
+            children.append(out_to["index"])
+            out_integer = Match(Token_type.Integer, out_to["index"])
+            children.append(out_integer["index"])
+            out_do = Match(Token_type.Do, out_integer["index"])
+            children.append(out_do["node"])
+            out_MultipleStatementBlock = MultipleStatementBlock(out_do["index"])
+            children.append(out_MultipleStatementBlock["node"])
+            node = Tree("Statement", children)
+            out["node"] = node
+            out["index"] = out_MultipleStatementBlock["index"]
+        else :
+            out ["node"]=["Epsilon"]
+            out ["index"]=pos
+            children.append(out["node"])
+            node = Tree("Statement", children)
+def AtomicStatements(pos):
+    temp = Tokens[pos].to_dict()
+    children = []
+    out = dict()
+
+    if temp["token_type"] == Token_type.Identifier:
+        out_fp = FPCallOrAssignement(pos)
+        children.append(out_fp["node"])
+        node = Tree("AtomicStatements", children)
+        out["node"] = node
+        out["index"] = out_fp["index"]
+        return out
+    elif temp["token_type"] == Token_type.WriteLn:
+        out_writeln = Match(Token_type.WriteLn, pos)
+        children.append(out_writeln["node"])
+        out_op = Match(Token_type.OpenParenthesis, out_writeln["index"])
+        children.append(out_op["node"])
+        out_p=ParametersList(out_op["index"])
+        children.append(out_p["node"])
+        out_clos = Match(Token_type.CloseParenthesisParenthesis, out_p["index"])
+        children.append(out_clos["node"])
+        node = Tree("AtomicStatements", children)
+        out["node"] = node
+        out["index"] = out_clos["index"]
+        return out
+    elif temp["token_type"] == Token_type.Write:
+        out_write = Match(Token_type.Write, pos)
+        children.append(out_write["node"])
+        out_op = Match(Token_type.OpenParenthesis, out_write["index"])
+        children.append(out_op["node"])
+        out_cont = Content(out_op["index"])
+        children.append(out_cont["node"])
+        out_clos = Match(Token_type.CloseParenthesisParenthesis, out_cont["index"])
+        children.append(out_clos["node"])
+        node = Tree("AtomicStatements", children)
+        out["node"] = node
+        out["index"] = out_clos["index"]
+        return out
+    elif temp["token_type"] == Token_type.ReadLn:
+        out_readln = Match(Token_type.ReadLn, pos)
+        children.append(out_readln["node"])
+        out_op = Match(Token_type.OpenParenthesis, out_readln["index"])
+        children.append(out_op["node"])
+        out_p = ParametersList(out_op["index"])
+        children.append(out_p["node"])
+        out_clos = Match(Token_type.CloseParenthesisParenthesis, out_p["index"])
+        children.append(out_clos["node"])
+        node = Tree("AtomicStatements", children)
+        out["node"] = node
+        out["index"] = out_clos["index"]
+        return out
+    elif temp["token_type"] == Token_type.Read:
+        out_read = Match(Token_type.Read, pos)
+        children.append(out_read["node"])
+        out_op = Match(Token_type.OpenParenthesis, out_read["index"])
+        children.append(out_op["node"])
+        out_p = ParametersList(out_op["index"])
+        children.append(out_p["node"])
+        out_clos = Match(Token_type.CloseParenthesisParenthesis, out_p["index"])
+        children.append(out_clos["node"])
+        node = Tree("AtomicStatements", children)
+        out["node"] = node
+        out["index"] = out_clos["index"]
+        return out
+def MultipleStatementBlockIF(pos):
+    temp = Tokens[pos].to_dict()
+    out = dict()
+    children = []
+    if temp["token_type"] == Token_type.Begin:
+        out_begin = Match(Token_type.Begin, pos)
+        children.append(out_begin["node"])
+        out_statements = Statements(out_begin["index"])
+        children.append(out_statements["node"])
+        out_end = Match(Token_type.End, out_statements["index"])
+        children.append(out_end["node"])
+        node = Tree("MultipleStatementBlockIF", children)
+        out["node"] = node
+        out["index"] = out_end["index"]
+        return out
+    else:
+        out = dict()
+        out_atomicst = AtomicStatements(pos)
+        children.append(out_atomicst["node"])
+        node = Tree("MultipleStatementBlockIF", children)
+        out["node"] = node
+        out["index"] = out_atomicst["index"]
+        return out
+def ifStatOption(pos):
+    children = []
+    out = dict()
+    out_mult = MultipleStatementBlockIF(pos)
+    children.append(out_mult["node"])
+    out_statB = StatBlock(out_mult["index"])
+    children.append(out_statB["node"])
+    node = Tree("ifStatOption", children)
+    out["node"] = node
+    out["index"] = out_statB["index"]
+    return out
+
+def StatBlock(pos):
+    temp = Tokens[pos].to_dict()
+    children = []
+    out = dict()
+    if temp["token_type"] == Token_type.Else:
+        out_else = Match(Token_type.Else, pos)
+        children.append(out_else["node"])
+        out_mult = MultipleStatementBlockIF(out_else["index"])
+        children.append(out_mult["node"])
+        out_semi = Match(Token_type.Semicolon, out_mult["index"])
+        children.append(out_semi["node"])
+        node = Tree("StatBlock", children)
+        out["node"] = node
+        out["index"] = out_semi["index"]
+        return out
+    else:
+        out_semi = Match(Token_type.Semicolon, pos)
+        children.append(out_semi["node"])
+        node = Tree("StatBlock", children)
+        out["node"] = node
+        out["index"] = out_semi["index"]
+        return out
 
 
-
+def Condition(pos):
+    children=[]
+    out=dict()
+    temp = Tokens[pos].to_dict()
+    if temp["token_type"] == Token_type.OpenParenthesis:
+        out_openparen=Match(Token_type.OpenParenthesis,pos)
+        children.append(out_openparen["node"])
+        out_condition=Condition(out_openparen["index"])
+        children.append(out_condition["node"])
+        out_closeparen=Match(Token_type.CloseParenthesis,out_condition["index"])
+        children.append(out_closeparen["node"])
+        node=Tree("Condition",children)
+        out["node"]=node
+        out["index"]=out_closeparen["index"]
+    else:
+        out_exp=Expression(pos)
+        children.append(out_exp["node"])
+        out_boolop=BoolOp(out_exp["index"])
+        children.append(out_boolop["node"])
+        out_exp=Expression(out_boolop["index"])
+        children.append(out_exp["node"])
+        node=Tree("Condition",children)
+        out["node"]=node
+        out["index"]=out_exp["index"]
+    return out
 def Match(a, pos):  # given token type and index and give dict(node,key)
     output = dict()
     if (pos < len(Tokens)):  # to prevent out of range
@@ -885,7 +1131,7 @@ def Match(a, pos):  # given token type and index and give dict(node,key)
             return output
         else:
             output["node"] = ["error"]
-            output["index"] = pos + 1
+            output["index"] = pos
             #errors.append("Syntax error : " + Temp['Lex'] + " Expected dot")
             return output
     else:
