@@ -28,18 +28,18 @@ class Lexer:
             while self.current_char is not None:
                 if self.current_char in " \t\n":
                     self.advance()
+                elif self.current_char in Operators or (
+                    self.next_char is not None
+                    and (self.current_char + self.next_char) in Operators
+                ):
+                    self.make_operator()
                 elif re.fullmatch(r"\.|[0-9]", self.current_char) or (
                     self.next_char is not None
                     and self.current_char in "+-"
                     and re.fullmatch(r"\.|[0-9]", self.next_char)
                 ):
                     self.make_constant()
-                elif self.current_char in Operators or (
-                    self.next_char is not None
-                    and (self.current_char + self.next_char) in Operators
-                ):
-                    self.make_operator()
-                elif re.fullmatch(r"[a-zA-z]", self.current_char):
+                elif re.fullmatch(r"[a-zA-Z]", self.current_char):
                     self.make_reserved_word_or_identifier()
                 elif self.current_char == "'":
                     self.make_string()
@@ -91,7 +91,7 @@ class Lexer:
     def make_reserved_word_or_identifier(self):
         rwid_str = ""
         while self.current_char is not None and re.fullmatch(
-            r"^(^[a-zA-z][a-zA-z0-9]*$)$", rwid_str + self.current_char
+            r"[a-zA-z][a-zA-Z0-9]*", rwid_str + self.current_char
         ):
             rwid_str += self.current_char
             self.advance()
