@@ -57,7 +57,7 @@ DefaultValue     → ε | = Constant
 ---------------------------------------------------------------------------------------------------------------------
 AssignedValue → Expression | string ; | identifier;
 BoolOp → < | > | = | <= | >= | <> | not | and | or | xor
-ArithmOp → MultOp | AddOp
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ArithmOp → MultOp | AddOp
 MultOp → * | /
 AddOp → + | -
 
@@ -66,8 +66,8 @@ Content → string Content* | identifier Content*
 
 Content* → , B* Content* | , identifier | , string |ε
 B* → string | ParameterList
-FPCall → FunctionName;|ProcedureName ; | identifier:=FunctionName;
-Condition → (Expression) BoolOp (Expression)
+FPCall → identifier; | identifier:=FunctionName;
+Condition → Expression BoolOp Expression | ( Condition )
 
 ----------------------------Expression → Term | Expression AddOp Term
 Expression → Term Exp

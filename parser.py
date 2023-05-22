@@ -9,6 +9,7 @@ import pandas
 import pandastable as pt
 from nltk.tree import *
 from modules.Lexer import *
+from modules.Tokens import *
 
 
 
@@ -385,7 +386,7 @@ def VarDeclaration (pos):
     print("ablooooooooo")
     print("semi index:",out_semi["index"])
     out_var2=VarDeclaration2(out_semi["index"])
-    print("out varDec2 nodee: ", out_var2["node"])
+    # print("out varDec2 nodee: ", out_var2["node"])
     #if (out_var2["node"]!=["Epsilon"]):
     children.append(out_var2["node"])
     node = Tree("VarDeclaration", children)
@@ -557,7 +558,6 @@ def Constant(pos):
         return out
 
 def ConstID2(pos):
-
     out = dict()
     children = []
     if (pos < len(Tokens)):
@@ -601,40 +601,422 @@ def DataType(pos):
         node = Tree("DataType", children)
         out["node"] = node
         out["index"] = out_integer["index"]
-
-
     elif temp["token_type"] == Token_type.Real:
         out_real = Match(Token_type.Real, pos)
         children.append(out_real["node"])
         node = Tree("DataType", children)
         out["node"] = node
         out["index"] = out_real["index"]
-
     elif temp["token_type"] == Token_type.Char:
         out_char = Match(Token_type.Char, pos)
         children.append(out_char["node"])
         node = Tree("DataType", children)
         out["node"] = node
         out["index"] = out_char["index"]
-
-
     elif temp["token_type"] == Token_type.String:
         out_string = Match(Token_type.String, pos)
         children.append(out_string["node"])
         node = Tree("DataType", children)
         out["node"] = node
         out["index"] = out_string["index"]
-
-
     elif temp["token_type"] == Token_type.Boolean:
         out_bool = Match(Token_type.Boolean, pos)
         children.append(out_bool["node"])
         node = Tree("DataType", children)
         out["node"] = node
         out["index"] = out_bool["index"]
+    return out
 
+def AssignedValue(pos):
+    children=[]
+    out = dict()
+    temp=Tokens[pos].to_dict()
+    if temp["token_type"]==Token_type.Identifier:
+        out_identifier = Match(Token_type.Identifier, pos)
+        children.append(out_identifier["node"])
+        out_semi = Match(Token_type.Semicolon, out_identifier["index"])
+        children.append(out_semi["node"])
+        node = Tree("AssignedValue", children)
+        out["node"] = node
+        out["index"] = out_semi["index"]
+    elif temp["token_type"]==Token_type.String:
+        out_string=Match(Token_type.String,pos)
+        children.append(out_string["node"])
+        out_semi=Match(Token_type.Semicolon,out_string["index"])
+        children.append(out_semi["node"])
+        node = Tree("AssignedValue", children)
+        out["node"] = node
+        out["index"] = out_semi["index"]
+    else:
+        out_exp = Expression(pos)
+        children.append(out_exp["node"])
+        node = Tree("AssignedValue", children)
+        out["node"] = node
+        out["index"] = out_exp["index"]
+    return out
+def BoolOp(pos):
+    children=[]
+    out = dict()
+    temp=Tokens[pos].to_dict()
+    if temp["token_type"] == Token_type.GreaterThanOp:
+        out_greater=Match(Token_type.GreaterThanOp,pos)
+        children.append(out_greater["node"])
+        node = Tree("Declaration Options", children)
+        out["node"] = node
+        out["index"] = out_greater["index"]
+    elif temp["token_type"] == Token_type.LessThanOp:
+        out_less=Match(Token_type.LessThanOp,pos)
+        children.append(out_less["node"])
+        node = Tree("Declaration Options", children)
+        out["node"] = node
+        out["index"] = out_less["index"]
+    elif temp["token_type"] == Token_type.EqualOp:
+        out_equal=Match(Token_type.EqualOp,pos)
+        children.append(out_equal["node"])
+        node = Tree("Declaration Options", children)
+        out["node"] = node
+        out["index"] = out_equal["index"]
+    elif temp["token_type"] == Token_type.GreaterThanOrEqualOp:
+        out_greaterOrEq=Match(Token_type.GreaterThanOrEqualOp,pos)
+        children.append(out_greaterOrEq["node"])
+        node = Tree("Declaration Options", children)
+        out["node"] = node
+        out["index"] = out_greaterOrEq["index"]
+    elif temp["token_type"] == Token_type.SmallerThanOrEqualOp:
+        out_smallerOrEq=Match(Token_type.SmallerThanOrEqualOp,pos)
+        children.append(out_smallerOrEq["node"])
+        node = Tree("Declaration Options", children)
+        out["node"] = node
+        out["index"] = out_smallerOrEq["index"]
+    elif temp["token_type"] == Token_type.NotEqualOp:
+        out_notEq=Match(Token_type.NotEqualOp,pos)
+        children.append(out_notEq["node"])
+        node = Tree("Declaration Options", children)
+        out["node"] = node
+        out["index"] = out_notEq["index"]
+    elif temp["token_type"] == Token_type.Not:
+        out_not=Match(Token_type.Not,pos)
+        children.append(out_not["node"])
+        node = Tree("Declaration Options", children)
+        out["node"] = node
+        out["index"] = out_not["index"]
+    elif temp["token_type"] == Token_type.And:
+        out_and=Match(Token_type.And,pos)
+        children.append(out_and["node"])
+        node = Tree("Declaration Options", children)
+        out["node"] = node
+        out["index"] = out_and["index"]
+    elif temp["token_type"] == Token_type.Or:
+        out_or=Match(Token_type.Or,pos)
+        children.append(out_or["node"])
+        node = Tree("Declaration Options", children)
+        out["node"] = node
+        out["index"] = out_or["index"]
+    elif temp["token_type"] == Token_type.Xor:
+        out_xor=Match(Token_type.Xor,pos)
+        children.append(out_xor["node"])
+        node = Tree("Declaration Options", children)
+        out["node"] = node
+        out["index"] = out_xor["index"]
 
     return out
+def MultOp(pos):
+    children = []
+    out = dict()
+    temp = Tokens[pos].to_dict()
+    if temp["token_type"] == Token_type.MultiplyOp:
+        out_multi=Match(Token_type.MultiplyOp,pos)
+        children.append(out_multi["node"])
+        node = Tree("MultOp", children)
+        out["node"] = node
+        out["index"] = out_multi["index"]
+    elif temp["token_type"] == Token_type.DivideOp:
+        out_divide=Match(Token_type.DivideOp,pos)
+        children.append(out_divide["node"])
+        node = Tree("MultOp", children)
+        out["node"] = node
+        out["index"] = out_divide["index"]
+    return out
+def AddOp(pos):
+    children = []
+    out = dict()
+    temp = Tokens[pos].to_dict()
+    if temp["token_type"] == Token_type.PlusOp:
+        out_plus = Match(Token_type.PlusOp, pos)
+        children.append(out_plus["node"])
+        node = Tree("AddOp", children)
+        out["node"] = node
+        out["index"] = out_plus["index"]
+    elif temp["token_type"] == Token_type.MinusOp:
+        out_minus = Match(Token_type.MinusOp, pos)
+        children.append(out_minus["node"])
+        node = Tree("AddOp", children)
+        out["node"] = node
+        out["index"] = out_minus["index"]
+    return out
+
+def Content(pos):
+    children = []
+    out = dict()
+    temp = Tokens[pos].to_dict()
+    if temp["token_type"] == Token_type.String:
+        out_string=Match(Token_type.String,pos)
+        children.append(out_string["node"])
+        out_content2=Content2(out_string["index"])
+    elif temp["token_type"] == Token_type.Identifier:
+        out_identifier=Match(Token_type.Identifier,pos)
+        children.append(out_identifier["node"])
+        out_content2=Content2(out_identifier["index"])
+    children.append(out_content2["node"])
+    node = Tree("Content",children)
+    out["node"]=node
+    out["index"]=out_content2["index"]
+    return out
+
+def Content2(pos):
+    children = []
+    out = dict()
+    if (pos < len(Tokens)):
+        temp = Tokens[pos].to_dict()
+        if temp["token_type"] == Token_type.Identifier:
+            out_comma=Match(Token_type.Comma,pos)
+            children.append(out_comma["node"])
+            out_leftFtcontent=LeftFctorContent(out_comma["index"])
+            children.append(out_leftFtcontent["node"])
+            node=Tree("Content2",children)
+            out["node"]=node
+            out["index"]=out_leftFtcontent["index"]
+            return out
+        else:
+            out["node"] = ["Epsilon"]
+            children.append(out["node"])
+            node = Tree("Content", children)
+            out["index"] = pos
+            return out
+    else:
+        out["node"] = ["Epsilon"]
+        children.append(out["node"])
+        node = Tree("Content2", children)
+        out["index"] = pos
+        return out
+
+def LeftFctorContent(pos):
+    children=[]
+    out=dict()
+    temp=Tokens[pos].to_dict()
+    if temp["token_type"] == Token_type.Identifier:
+        out_identifier=Match(Token_type.Identifier,pos)
+        children.append(out_identifier["node"])
+        node = Tree("LeftFctorContent",children)
+        out["node"]=node
+        out["index"]=out_identifier["index"]
+    elif temp["token_type"] == Token_type.String:
+        out_string=Match(Token_type.String,pos)
+        children.append(out_string["node"])
+        node = Tree("LeftFctorContent", children)
+        out["node"] = node
+        out["index"] = out_string["index"]
+    else:
+        out_LeftFctorcontent2 = LeftFctorContent2(pos)
+        children.append(out_LeftFctorcontent2["node"])
+        out_content2=Content2(out_LeftFctorcontent2["index"])
+        children.append(out_content2["node"])
+        node = Tree("LeftFctorContent", children)
+        out["node"] = node
+        out["index"] = out_content2["index"]
+    return out
+
+def LeftFctorContent2(pos):
+    children=[]
+    out=dict()
+    temp = Tokens[pos].to_dict()
+    if temp["token_type"] == Token_type.String:
+        out_string=Match(Token_type.String,pos)
+        children.append(out_string["node"])
+        node = Tree("LeftFctorConten2t", children)
+        out["node"] = node
+        out["index"]=out_string["index"]
+    else:
+        out_param=ParametersList(pos)
+        children.append(out_param["node"])
+        node = Tree("LeftFctorConten2t", children)
+        out["node"] = node
+        out["index"] = out_param["index"]
+    return out
+
+
+
+def Condition(pos):
+    children=[]
+    out=dict()
+    temp = Tokens[pos].to_dict()
+    if temp["token_type"] == Token_type.OpenParenthesis:
+        out_openparen=Match(Token_type.OpenParenthesis,pos)
+        children.append(out_openparen["node"])
+        out_condition=Condition(out_openparen["index"])
+        children.append(out_condition["node"])
+        out_closeparen=Match(Token_type.CloseParenthesis,out_condition["index"])
+        children.append(out_closeparen["node"])
+        node=Tree("Condition",children)
+        out["node"]=node
+        out["index"]=out_closeparen["index"]
+    else:
+        out_exp=Expression(pos)
+        children.append(out_exp["node"])
+        out_boolop=BoolOp(out_exp["index"])
+        children.append(out_boolop["node"])
+        out_exp=Expression(out_boolop["index"])
+        children.append(out_exp["node"])
+        node=Tree("Condition",children)
+        out["node"]=node
+        out["index"]=out_exp["index"]
+    return out
+
+def Expression(pos):
+    children=[]
+    out=dict()
+    out_term=Term(pos)
+    children.append(out_term["node"])
+    out_exp=Exp(out_term["index"])
+    children.append(out_exp["node"])
+    node = Tree("Expression",children)
+    out["node"]=node
+    out["index"]=out_exp["index"]
+    return out
+
+def Exp(pos):
+    children=[]
+    out=dict()
+    if (pos < len(Tokens)):
+        temp=Tokens[pos].to_dict()
+        if temp["token_type"] == Token_type.PlusOp or temp["token_type"] == Token_type.MinusOp:
+            out_addop=AddOp(pos)
+            children.append(out_addop["node"])
+            out_term=Term(out_addop["index"])
+            children.append(out_term["node"])
+            out_exp=Exp(out_term["index"])
+            children.append(out_exp["node"])
+            node = Tree("Exp",children)
+            out["node"]=node
+            out["index"]=out_exp["index"]
+            return out
+        else:
+            out["node"] = ["Epsilon"]
+            children.append(out["node"])
+            node = Tree("Exp", children)
+            out["index"] = pos
+            return out
+    else:
+        out["node"] = ["Epsilon"]
+        children.append(out["node"])
+        node = Tree("Exp", children)
+        out["index"] = pos
+        return out
+
+def Term(pos):
+    children=[]
+    out=dict()
+    out_factor=Factor(pos)
+    children.append(out_factor["node"])
+    out_ter=Ter(out_factor["index"])
+    children.append(out_ter["node"])
+    node = Tree("Term",children)
+    out["node"]=node
+    out["index"]=out_ter["index"]
+    return out
+
+def Ter(pos):
+    children=[]
+    out=dict()
+    if (pos < len(Tokens)):
+        temp=Tokens[pos].to_dict()
+        if temp["token_type"] == Token_type.MultiplyOp or temp["token_type"] == Token_type.DivideOp:
+            out_multop=MultOp(pos)
+            children.append(out_multop["node"])
+            out_factor=Factor(out_multop["index"])
+            children.append(out_factor["node"])
+            out_ter=Ter(out_factor["index"])
+            children.append(out_ter["node"])
+            node = Tree("Ter",children)
+            out["node"]=node
+            out["index"]=out_ter["index"]
+            return out
+        else:
+            out["node"] = ["Epsilon"]
+            children.append(out["node"])
+            node = Tree("Ter", children)
+            out["index"] = pos
+            return out
+    else:
+        out["node"] = ["Epsilon"]
+        children.append(out["node"])
+        node = Tree("Ter", children)
+        out["index"] = pos
+        return out
+
+def Factor(pos):
+    children=[]
+    out=dict()
+    temp=Tokens[pos].to_dict()
+    if temp["token_type"] ==Token_type.Identifier:
+        out_identifier=Match(Token_type.Identifier,pos)
+        children.append(out_identifier["node"])
+        node=Tree("Factor",children)
+        out["node"]=node
+        out["index"]=out_identifier["index"]
+    else:
+        out_openparen=Match(Token_type.OpenParenthesis,pos)
+        children.append(out_openparen["node"])
+        out_experssion=Expression(out_openparen["index"])
+        children.append(out_experssion["node"])
+        out_closeparen=Match(Token_type.CloseParenthesis,out_experssion["index"])
+        children.append(out_closeparen["node"])
+        node = Tree("Factor",children)
+        out["node"]=node
+        out["index"]=out_closeparen["index"]
+    return out
+
+def FPCall(pos):
+    children=[]
+    out=dict()
+    out_identifier=Match(Token_type.Identifier,pos)
+    children.append(out_identifier["node"])
+    out_fpcall2=FPCall2(out_identifier["index"])
+    children.append(out_fpcall2["node"])
+    node=Tree("FPCall",children)
+    out["node"]=node
+    out["index"]=out_fpcall2["index"]
+    return out
+
+def FPCall2(pos):
+    children=[]
+    out=dict()
+    temp=Tokens[pos].to_dict()
+    if temp["token_type"]==Token_type.Semicolon:
+        out_semi=Match(Token_type.Semicolon,pos)
+        children.append(out_semi["node"])
+        node=Tree("FPCall2",children)
+        out["node"]=node
+        out["index"]=out_semi["index"]
+    elif temp["token_type"]== Token_type.Colon:
+        out_colon=Match(Token_type.Colon,pos)
+        children.append(out_colon["node"])
+        out_eq=Match(Token_type.EqualOp,out_colon["index"])
+        children.append(out_eq["node"])
+        out_identifier=Match(Token_type.Identifier,out_eq["index"])
+        children.append(out_identifier["node"])
+        node = Tree ("FPCall2",children)
+        out["node"]=node
+        out["index"]=out_identifier["index"]
+    return out
+
+
+
+
+
+
+
+
 # def FunctionStatments(pos):
 #     out=dict()
 #     children=[]
