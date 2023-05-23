@@ -12,8 +12,6 @@ from nltk.tree import *
 from modules.Lexer import *
 from modules.Tokens import *
 
-
-
 # class token to hold string and token type
 
 errors = None
@@ -27,12 +25,12 @@ def find_token(text):
 def Parse():
     pos = 0
     Children = []
-    Header_dict = Header(pos)
-    Children.append(Header_dict["node"])
-    Decl_Section = DeclSection(Header_dict["index"])
+    #Header_dict = Header(pos)
+    #Children.append(Header_dict["node"])
+    Decl_Section = DeclSection(pos)
     Children.append(Decl_Section["node"])
-    # block_main = MainBlock(Decl_Section["index"])
-    # Children.append(block_main["node"])
+    block_main = MainBlock(Decl_Section["index"])
+    Children.append(block_main["node"])
     Node = Tree('Program', Children) # given non-terminal and its children
     return Node
 
@@ -131,16 +129,14 @@ def PackageList2(pos):
 def DeclSection(pos):
     children = []
     out = dict()
-    out_decl = Declarations(pos)
-    children.append(out_decl["node"])
-    out_proc=ProcedureDeclarationSection(out_decl["index"])
+    #out_decl = Declarations(pos)
+   # children.append(out_decl["node"])
+    out_proc=ProcedureDeclarationSection(pos)
     children.append(out_proc["node"])
     node = Tree("Declaration Section", children)
     out["node"] = node
     out["index"] = out_proc["index"]
     return out
-
-
 def ProcedureDeclarationSection(pos):
     children = []
     out = dict()
@@ -215,8 +211,9 @@ def ProcedureBlock(pos):
         if temp["token_type"] == Token_type.Begin:
             out_begin=Match(Token_type.Begin,pos)
             children.append(out_begin["node"])
-            ############################stats
-            out_end=Match(Token_type.End,out_begin["index"])
+            out_statement= Statements(out_begin["index"])
+            children.append(out_statement["node"])
+            out_end=Match(Token_type.End,out_statement["index"])
             children.append(out_end["node"])
             out_semi=Match(Token_type.Semicolon,out_end["index"])
             children.append(out_semi["node"])
@@ -236,13 +233,9 @@ def ProcedureHeader(pos):
             children.append(out_p["node"])
             out_Name = ProcedureName(out_p["index"])
             children.append(out_Name["node"])
-            out_OpenParenthesis=Match(Token_type.OpenParenthesis,out_Name["index"])
-            children.append(out_OpenParenthesis["node"])
-            out_Arg=ArgumentIDList(out_OpenParenthesis["index"])
-            children.append(out_Arg["node"])
-            out_ClosedP=Match(Token_type.CloseParenthesis,out_Arg["index"])
-            children.append(out_ClosedP["node"])
-            out_semi=Match(Token_type.Semicolon,out_ClosedP["index"])
+            out_ArgOption=ArgumentOption(out_Name["index"])
+            children.append(out_ArgOption["node"])
+            out_semi=Match(Token_type.Semicolon,out_ArgOption["index"])
             children.append(out_semi["node"])
             node = Tree("ProcedureHeader", children)
             out["node"] = node
@@ -332,6 +325,15 @@ def ParametersList(pos):
             node = Tree("ParametersList", children)
             out["node"] = node
             out["index"] = out_PL2["index"]
+        elif temp["token_type"] == Token_type.Constant :
+            out_Const = Match(Token_type.Constant, pos)
+            children.append(out_Const["node"])
+            out_PL2 = ParametersList2(out_Const["index"])
+            children.append(out_PL2["node"])
+            node = Tree("ParametersList", children)
+            out["node"] = node
+            out["index"] = out_PL2["index"]
+
     return out
 def ParametersList2(pos):
     children = []
@@ -341,13 +343,11 @@ def ParametersList2(pos):
         if temp["token_type"] == Token_type.Comma:
             out_Comma = Match(Token_type.Comma, pos)
             children.append(out_Comma["node"])
-            out_Id=Match(Token_type.Identifier,out_Comma["index"])
-            children.append(out_Id["node"])
-            out_PL2=ParametersList2(out_Id["index"])
-            children.append(out_PL2["node"])
+            out_PL=ParametersList(out_Comma["index"])
+            children.append(out_PL["node"])
             node = Tree("ParametersList2", children)
             out["node"] = node
-            out["index"] = out_PL2["index"]
+            out["index"] = out_PL["index"]
         else:
             children.append(["Epsilon"])
             node = Tree("ParametersList2", children)
@@ -510,13 +510,9 @@ def FunctionHeader(pos):
     children.append(out_function["node"])
     out_FunctionName = FunctionName(out_function["index"])
     children.append(out_FunctionName["node"])
-    out_bracket = Match(Token_type.OpenParenthesis , out_FunctionName["index"])
-    children.append(out_bracket["node"])
-    out_ArgIdList = ArgumentIDList(out_bracket["index"])
-    children.append(out_ArgIdList["node"])
-    out_bracket2 = Match(Token_type.CloseParenthesis, out_ArgIdList["index"])
-    children.append(out_bracket2["node"])
-    out_colon = Match(Token_type.Colon, out_bracket2["index"])
+    out_ArgIdListOption = ArgumentOption(out_FunctionName["index"])
+    children.append(out_ArgIdListOption["node"])
+    out_colon = Match(Token_type.Colon, out_ArgIdListOption["index"])
     children.append(out_colon["node"])
     out_dataType = DataType(out_colon["index"])
     children.append(out_dataType["node"])
@@ -553,11 +549,28 @@ def FunctionBlock( pos):
     out["index"] = out_semicolon["index"]
     return out
 
-
-def VarDeclarationSection (pos):
-    print("VarDeclarationSection pos:",pos)
+def ArgumentOption (pos):
     temp = Tokens[pos].to_dict()
-    print("VarDeclarationSection lex:",temp["Lex"])
+    children = []
+    out = dict()
+    if temp["token_type"] == Token_type.OpenParenthesis:
+        out_Oparenthesis = Match(Token_type.OpenParenthesis, pos)
+        children.append(out_Oparenthesis["node"])
+        out_Arguments=ArgumentIDList(out_Oparenthesis["index"])
+        children.append(out_Arguments["node"])
+        out_Cparenthesis = Match(Token_type.CloseParenthesis,out_Arguments["index"])
+        children.append(out_Cparenthesis["node"])
+        node = Tree("ArgumentOption", children)
+        out["node"] = node
+        out["index"] = out_Cparenthesis["index"]
+    else :
+        children.append(["Epsilon"])
+        node = Tree("ArgumentOption", children)
+        out["node"] = node
+        out["index"] = pos
+    return out
+def VarDeclarationSection (pos):
+    temp = Tokens[pos].to_dict()
     children = []
     out = dict()
     if temp["token_type"]==Token_type.Var:
@@ -697,13 +710,12 @@ def VariableIDList2 (pos):
         node = Tree("VarDeclarationIDList2", children)
         out["node"] = node
         out["index"] = out_VariableIdList2["index"]
-        return out
     else:
         out["index"] = pos
         children.append(["Epsilon"])
         node = Tree("VarDeclarationIDList2", children)
         out["node"] = node
-        return out
+    return out
 
 
 def TypeDeclaration(pos):
@@ -855,7 +867,9 @@ def MainBlock(pos):
         if temp["token_type"]==Token_type.Begin:
             out_begin=Match(Token_type.Begin,pos)
             children.append(out_begin["node"])
-            out_end=Match(Token_type.End,out_begin["index"])
+            out_statement =Statements(out_begin["index"])
+            children.append(out_statement["node"])
+            out_end=Match(Token_type.End,out_statement["index"])
             children.append(out_end["node"])
             out_dot=Match(Token_type.Dot,out_end["index"])
             children.append(out_dot["node"])
@@ -1008,9 +1022,9 @@ def AtomicStatements(pos):
         children.append(out_writeln["node"])
         out_op = Match(Token_type.OpenParenthesis, out_writeln["index"])
         children.append(out_op["node"])
-        out_p=ParametersList(out_op["index"])
-        children.append(out_p["node"])
-        out_clos = Match(Token_type.CloseParenthesis, out_p["index"])
+        out_Content=Content(out_op["index"])
+        children.append(out_Content["node"])
+        out_clos = Match(Token_type.CloseParenthesis, out_Content["index"])
         children.append(out_clos["node"])
         node = Tree("AtomicStatements", children)
         out["node"] = node
@@ -1093,7 +1107,15 @@ def AssignedValue(pos):
     children=[]
     out = dict()
     temp=Tokens[pos].to_dict()
-    if temp["token_type"]==Token_type.Identifier:
+    if temp["token_type"]==Token_type.Constant:
+        out_const = Match(Token_type.Constant, pos)
+        children.append(out_const["node"])
+        out_semi = Match(Token_type.Semicolon, out_const["index"])
+        children.append(out_semi["node"])
+        node = Tree("AssignedValue", children)
+        out["node"] = node
+        out["index"] = out_semi["index"]
+    elif temp["token_type"]==Token_type.Identifier:
         out_identifier = Match(Token_type.Identifier, pos)
         children.append(out_identifier["node"])
         out_semi = Match(Token_type.Semicolon, out_identifier["index"])
@@ -1243,7 +1265,7 @@ def Content2(pos):
     out = dict()
     if pos < len(Tokens):
         temp = Tokens[pos].to_dict()
-        if temp["token_type"] == Token_type.Identifier:
+        if temp["token_type"] == Token_type.Comma:
             out_comma = Match(Token_type.Comma,pos)
             children.append(out_comma["node"])
             out_leftFactcontent=LeftFactorContent(out_comma["index"])
@@ -1365,17 +1387,16 @@ def Exp(pos):
             out["node"]=node
             out["index"]=out_exp["index"]
         else:
-
             children.append(["Epsilon"])
             node = Tree("Exp", children)
-            out["node"] = node
             out["index"] = pos
+            out["node"] = node
     else:
         children.append(["Epsilon"])
         node = Tree("Exp", children)
-        out["node"] = node
         out["index"] = pos
-        return out
+        out["node"] = node
+    return out
 
 def Term(pos):
     children=[]
@@ -1428,7 +1449,13 @@ def Factor(pos):
         node=Tree("Factor",children)
         out["node"]=node
         out["index"]=out_identifier["index"]
-    else:
+    elif temp["token_type"]==Token_type.Constant:
+        out_const = Match(Token_type.Constant, pos)
+        children.append(out_const["node"])
+        node = Tree("Factor", children)
+        out["node"] = node
+        out["index"] = out_const["index"]
+    elif temp["token_type"]==Token_type.OpenParenthesis:
         out_openparen=Match(Token_type.OpenParenthesis,pos)
         children.append(out_openparen["node"])
         out_experssion=Expression(out_openparen["index"])
@@ -1438,6 +1465,7 @@ def Factor(pos):
         node = Tree("Factor",children)
         out["node"]=node
         out["index"]=out_closeparen["index"]
+    #todo else here to be for errors
     return out
 
 def FPCallOrAssi(pos):
@@ -1518,12 +1546,15 @@ def FPCallOrAssi3(pos):
             node = Tree("FPCallOrAssi3", children)
             out["node"] = node
             out["index"] = out_fpcall4["index"]
-    # else:
-    #     out_assigned=AssignedValue(pos)
-    #     children.append(out_assigned)
-    #     node=Tree("FPCallOrAssi3",children)
-    #     out["node"]=node
-    #     out["index"]=out_assigned["index"]
+    elif (temp["token_type"]==Token_type.Constant):
+        out_assigned=AssignedValue(pos)
+        children.append(out_assigned["node"])
+        node=Tree("FPCallOrAssi3",children)
+        out["node"]=node
+        out["index"]=out_assigned["index"]
+    #todo error place here
+    #else :
+
     return out
 
 def FPCallOrAssi4(pos):
@@ -1579,32 +1610,6 @@ def StatBlock(pos):
         out["index"] = out_semi["index"]
         return out
 
-
-def Condition(pos):
-    children=[]
-    out=dict()
-    temp = Tokens[pos].to_dict()
-    if temp["token_type"] == Token_type.OpenParenthesis:
-        out_openparen=Match(Token_type.OpenParenthesis,pos)
-        children.append(out_openparen["node"])
-        out_condition=Condition(out_openparen["index"])
-        children.append(out_condition["node"])
-        out_closeparen=Match(Token_type.CloseParenthesis,out_condition["index"])
-        children.append(out_closeparen["node"])
-        node=Tree("Condition",children)
-        out["node"]=node
-        out["index"]=out_closeparen["index"]
-    else:
-        out_exp=Expression(pos)
-        children.append(out_exp["node"])
-        out_boolop=BoolOp(out_exp["index"])
-        children.append(out_boolop["node"])
-        out_exp=Expression(out_boolop["index"])
-        children.append(out_exp["node"])
-        node=Tree("Condition",children)
-        out["node"]=node
-        out["index"]=out_exp["index"]
-    return out
 def Match(a, pos):  # given token type and index and give dict(node,key)
     output = dict()
     if (pos < len(Tokens)):  # to prevent out of range
