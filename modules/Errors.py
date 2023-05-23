@@ -27,3 +27,7 @@ class InvalidConstant(CustomError):
 class IncompleteString(CustomError):
     def __init__(self, pos, given):
         super().__init__(pos, "IncompleteString", given)
+
+class IncompleteComment(CustomError):
+    def __init__(self, pos, given):
+        super().__init__(pos, "IncompleteComment", given)

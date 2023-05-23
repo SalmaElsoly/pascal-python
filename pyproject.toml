@@ -8,6 +8,13 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10"
 pandas = "^2.0.1"
+visual-automata = "^1.1.1"
+automathon = "^0.0.12"
+pandastable = "^0.13.1"
+nltk = "^3.8.1"
+tkpdfviewer = "^0.1"
+tkdocviewer = "^2.0.2"
+pillow = "^9.5.0"
 
 
 [build-system]

@@ -1,7 +1,7 @@
 import re
 from modules.Tokenizer import Tokenizer
 from modules.Tokens import Token_type, Operators, ReservedWords
-from modules.Errors import CustomError, IncompleteString, InvalidConstant, UnknownToken
+from modules.Errors import *
 from modules.Util import Position
 
 
@@ -43,6 +43,8 @@ class Lexer:
                     self.make_reserved_word_or_identifier()
                 elif self.current_char == "'":
                     self.make_string()
+                elif self.current_char == "{":
+                    self.skip_comment()
                 else:
                     raise UnknownToken(self.pos, self.current_char)
         except CustomError as e:
@@ -115,3 +117,30 @@ class Lexer:
             self.advance()
         self.advance()
         self.tokens.append(Tokenizer(str_str, Token_type.String))
+
+    def skip_comment(self):
+        asterisk = False
+        if self.next_char and self.next_char == "*":
+            asterisk = True
+        newline = False
+        self.advance()
+        if(asterisk):
+            self.advance()
+        while not (self.current_char == "}" or (self.current_char == "*" and self.next_char == "}")):
+            if self.current_char is None or self.next_char is None:
+                raise IncompleteComment(
+                    self.pos,
+                    "EOF",
+                )
+            if self.current_char == "\n":
+                if asterisk:
+                    newline = True
+                else:
+                    raise UnknownToken(self.pos, "\\n")
+            self.advance()
+        if newline and self.current_char == "}":
+            raise UnknownToken(self.pos, "}")
+        if self.current_char == "*":
+            self.advance()
+        self.advance()
+

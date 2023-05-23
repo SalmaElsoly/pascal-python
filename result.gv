@@ -1,0 +1,8 @@
+digraph result {
+	graph [rankdir=LR]
+	"" [label="" shape=plaintext]
+	q1 [label=q1 shape=doublecircle]
+	q0 [label=q0 shape=circle]
+	"" -> q0 [label=""]
+	q0 -> q1 [label=";"]
+}

@@ -1,8 +1,8 @@
 ////////////////////////////////////////////Declaration//////////////////////////////////////////////////////////////
-Program     →  Header Declsec Block{main}
-Header       →  ProgramID Uses
+Program →  Header Declsec Block
+Header  →  ProgramID Uses
 ProgramID →  program identifier ;
-Uses          →  Uses PackageList ; | Epsilon
+Uses →  uses PackageList ; | Epsilon
 
 PackageList    →  PackageList Package , | Package
 PackageList → Package PackaList*
@@ -73,7 +73,7 @@ LeftFactorContent2 → string | ParameterList
 FPCall → identifier FPCall2
 FPCall2 ;|:= FunctionName;
 
-Condition → (Expression) BoolOp (Expression)
+
 
 ----------------------------Expression → Term | Expression AddOp Term
 Expression → Term Exp
@@ -100,41 +100,28 @@ FunctionCallAssignemnt2 -> Epsilon | := FunctionCallAssignemnt3 | (ParamaterList
 FunctionCallAssignemnt3 -> identifier FunctionCallAssignemnt4 | AssignedValue
 FunctionCallAssignemnt4 -> Epsilon | (ParameterList)
 
-IF -> if Condition then IfStatOption
 
-Statements → Statement Statements*
-Statements* → ; Statement Statements*| ε
+-------------------------------------Statements--------------------------------------------------------------------
+Statements → Statement StatementsAdditional
+StatementsAdditional → ; Statement Statements*| ε
+---------
+Statements → Statement ; StatementsAdditional
+StatementsAdditional → Statements| ε
+-----------
 Statement  → AtomicStatements |
-| IF
-| while Condition do MultipleStatementBlock
+| if Condition then IfStatOption
+| while Condition do MultipleStatementBlockIF
 | repeat Statements until Condition ;
-| for identifier := integer to integer do MultipleStatementBlock
+| for identifier := constant to constant do MultipleStatementBlock
 | ε
 
-ifStateOption  MultipleStatmentBlockIF StatBlock
-StatBlock  else multiplestatmentBlockIF ;|;
-MultipleStatementBlockIF → begin Statements end | AtomicStatements
+ifStateOption  MultipleStatmentBlockIF StatementBlock
+StatementBlock  else MultiplestatmentBlockIF | ε
+MultipleStatementBlockIF → begin Statements end | AtomicStatement
+Condition ->
 ////////////////////////////////////////End Draft Area//////////////////////////////////////////////////////////////////
 
----------------------------------Statement---------------------------------------------------------------------------------------
 
---------------------------------Statements → Statements ; Statement | Statement
-Statements → Statement Statements*
-Statements* → ; Statement Statements*| ε
-Statement → readln (ParametersList) | read (ParametersList)
-| identifier = AssignedValue; | writeln(ParametersList);
-| write(Content);
-| if Condition then IfStatOption
-| while Condition do MultipleProcedureStatementBlock
-| repeat Statements until Condition ;
-| for identifier := integer to integer do MultipleProcedureStatementBlock
-| FPCall
-| ε
 
-ifStatOption --> MultipleStatementBlock IfElseOption | Statment IfElseOption
-
-IfElseOption → else MultipleStatementBlock | ε
-MultipleStatementBlock → begin Statements end; | Statement;
-Block → begin Statements end .
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
