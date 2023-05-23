@@ -35,8 +35,12 @@ Constant →  constant | string| boolean
 -------------------------------ProcedureDecS → ProcedureDecS FuncDecS |  ProcedureDecS ProcedureDec | FuncDecS | ProcedureDec | ε
 ProcedureDecS → FP ProcedureDecS*| ε
 FP →  FuncDecS | ProcedureDec
-ProcedureDecS* → FuncDecS ProcedureDecS*| ProcedureDec ProcedureDecS* |ε
 
+ProcedureDecS* → FuncDecS ProcedureDecS*| ProcedureDec ProcedureDecS* |ε
+ProcedureDec → ProcedureHeader FPDecl ProcedureBlock
+ProcedureBlock → begin Statements end;
+ProcedureHeader →  procedure ProcedureName (ArgumentsIdList) ;
+ProcedureName → identifier
 ParametersList → ParamatersList , identifier | identifier
 ParametersList → identifier ParametersList*
 ParametersList* → , identifier   ParametersList* | ε
@@ -79,8 +83,8 @@ Expression → Term Exp
 Exp → AddOp Term Exp |ε
 
 ---------------------------------Term → Term MultOp Factor | Factor
-Term → Factor Ter
-Ter → MultOp Factor Ter |ε
+Term → Factor Term2
+Term2 → MultOp Factor Term2 |ε
 Factor → identifier|(Expression)
 
 
@@ -93,10 +97,11 @@ AtomicStatements->
 -------------------------FPCallOrAssignemnt ->  ProcedureCall |identifier := identifier |  identifier:= identifier(Parameterlist)
 ProcedureCall ->  indentifier |  identifier(Parameterlist)
 
+AssignedValue → Expression | string ; | identifier;
 FPCallOrAssignemnt -> identifier FunctionCall2
-FunctionCallAssignemnt 2 -> Epsilon | := FunctionCallAssignemnt3 | (ParamaterList)
-FunctionCallAssignemnt 3 -> identifier FunctionCallAssignemnt4 | AssignedValue
-FunctionCallAssignemnt 4 -> Epsilon | (ParameterList)
+FunctionCallAssignemnt2 -> Epsilon | := FunctionCallAssignemnt3 | (ParamaterList)
+FunctionCallAssignemnt3 -> identifier FunctionCallAssignemnt4 | AssignedValue
+FunctionCallAssignemnt4 -> Epsilon | (ParameterList)
 
 IF -> if Condition then IfStatOption
 
@@ -112,11 +117,6 @@ Statement  → AtomicStatements |
 ifStateOption  MultipleStatmentBlockIF StatBlock
 StatBlock  else multiplestatmentBlockIF ;|;
 MultipleStatementBlockIF → begin Statements end | AtomicStatements
------------------------Old-----------------------------------------
-MultipleStatementBlock → begin Statements end; | AtomicStatements ;
-MultipleStatementBlockIF → begin Statements end | AtomicStatements
-ifStatOption --> MultipleStatementBlockIf else MultipleStatementBlock | MultipleStatementBlock
-
 ////////////////////////////////////////End Draft Area//////////////////////////////////////////////////////////////////
 
 ---------------------------------Statement---------------------------------------------------------------------------------------

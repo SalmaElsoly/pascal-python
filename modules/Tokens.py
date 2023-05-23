@@ -136,8 +136,6 @@ Operators = {
     # Parenthesis
     "(": Token_type.OpenParenthesis,
     ")": Token_type.CloseParenthesis,
-    # Assignment
-    ":=": Token_type.AssignmentOperator,
     # General
     ";": Token_type.Semicolon,
     ",": Token_type.Comma,

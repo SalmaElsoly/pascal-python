@@ -53,7 +53,7 @@ class Lexer:
         op_str = self.current_char
         self.advance()
         if self.current_char is not None and (op_str + self.current_char) in Operators:
-            op_str += self.next_char
+            op_str += self.current_char
             self.advance()
             self.tokens.append(Tokenizer(op_str, Operators[op_str]))
         else:
