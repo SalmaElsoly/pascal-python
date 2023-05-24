@@ -13,6 +13,8 @@ from modules.Lexer import *
 from modules.Tokens import *
 
 # class token to hold string and token type
+current = []
+flag = [False, -1]
 
 errors = None
 Tokens=[]
@@ -25,11 +27,11 @@ def find_token(text):
 def Parse():
     pos = 0
     Children = []
-    #Header_dict = Header(pos)
-    #Children.append(Header_dict["node"])
-    #Decl_Section = DeclSection(pos)
-    #Children.append(Decl_Section["node"])
-    block_main = MainBlock(pos)
+    Header_dict = Header(pos)
+    Children.append(Header_dict["node"])
+    Decl_Section = DeclSection(Header_dict["index"])
+    Children.append(Decl_Section["node"])
+    block_main = MainBlock(Decl_Section["index"])
     Children.append(block_main["node"])
     Node = Tree('Program', Children) # given non-terminal and its children
     return Node
@@ -37,6 +39,7 @@ def Parse():
 def Header(pos):
     children = []
     out = dict()
+    current.append(pos)
     out_PID = ProgramID(pos)
     children.append(out_PID["node"])
     out_Uses = Uses(out_PID["index"])
@@ -44,6 +47,7 @@ def Header(pos):
     node = Tree("header", children)
     out["node"] = node
     out["index"] = out_Uses["index"]
+    current.pop()
     return out
     # pass
 
@@ -129,9 +133,9 @@ def PackageList2(pos):
 def DeclSection(pos):
     children = []
     out = dict()
-    #out_decl = Declarations(pos)
-   # children.append(out_decl["node"])
-    out_proc=ProcedureDeclarationSection(pos)
+    out_decl = Declarations(pos)
+    children.append(out_decl["node"])
+    out_proc=ProcedureDeclarationSection(out_decl["index"])
     children.append(out_proc["node"])
     node = Tree("Declaration Section", children)
     out["node"] = node
@@ -1598,8 +1602,16 @@ def Content2(pos):
         out["node"] = node
         return out
 def Match(a, pos):  # given token type and index and give dict(node,key)
+    global flag, current
     output = dict()
     if (pos < len(Tokens)):  # to prevent out of range
+        if(flag[1] in current):
+            output["node"] = ["error"]
+            output["index"] = pos
+            #errors.append("Syntax error : " + Temp['Lex'] + " Expected dot")
+            return output
+        flag = [False, -1]
+
         Temp = Tokens[pos].to_dict()
         if(Temp['token_type'] == a):
             pos += 1
@@ -1608,12 +1620,13 @@ def Match(a, pos):  # given token type and index and give dict(node,key)
             return output
         else:
             output["node"] = ["error"]
-            output["index"] = pos
+            output["index"] = pos + 1
             #errors.append("Syntax error : " + Temp['Lex'] + " Expected dot")
+            flag = [True, current[-1]]
             return output
     else:
         output["node"] = ["error"]
-        output["index"] = pos + 1
+        output["index"] = pos
         return output
 
 # GUI
@@ -1657,8 +1670,12 @@ def make_handler(table):
 make_handler.stall = False
 def Scan():
 
-    x1 = entry1.get()
-    find_token(x1)
+    # x1 = entry1.get()
+    # find_token(x1)
+    file = open("./code.pas", "r", encoding="utf-8")
+    text = file.read()
+    find_token(text)
+    file.close()
     df = pandas.DataFrame.from_records([t.to_dict() for t in Tokens])
     # print(df)
 
