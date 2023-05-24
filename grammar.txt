@@ -86,7 +86,7 @@ Factor → identifier|(Expression) | constant
 
 
 ///////////////////////////////////////////////////Draft Area///////////////////////////////////////////////////////
-AtomicStatements->
+AtomicStatement->
  FPCallOrAssignemnt |
 | writeln(Content)
 | write(Content) | readln (ParametersList) | read (ParametersList)
@@ -100,24 +100,18 @@ FunctionCallAssignemnt2 -> Epsilon | := FunctionCallAssignemnt3 | (ParamaterList
 FunctionCallAssignemnt3 -> identifier FunctionCallAssignemnt4 | AssignedValue
 FunctionCallAssignemnt4 -> Epsilon | (ParameterList)
 
-
--------------------------------------Statements--------------------------------------------------------------------
-Statements → Statement StatementsAdditional
-StatementsAdditional → ; Statement Statements*| ε
----------
-Statements → Statement ; StatementsAdditional
-StatementsAdditional → Statements| ε
------------
-Statement  → AtomicStatements |
+-------------------------------------Statements------------------------------------------------
+Statements → Statement ; Statements | ε
+Statement  → AtomicStatement |
 | if Condition then IfStatOption
 | while Condition do MultipleStatementBlockIF
 | repeat Statements until Condition ;
-| for identifier := constant to constant do MultipleStatementBlock
+| for identifier := constant to constant do MultipleStatementBlockIF
 | ε
 
 ifStateOption  MultipleStatmentBlockIF StatementBlock
 StatementBlock  else MultiplestatmentBlockIF | ε
-MultipleStatementBlockIF → begin Statements end | AtomicStatement
+MultipleStatementBlockIF → begin Statements end | AtomicStatement | Statements
 Condition ->
 ////////////////////////////////////////End Draft Area//////////////////////////////////////////////////////////////////
 

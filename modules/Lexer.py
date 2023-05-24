@@ -39,7 +39,7 @@ class Lexer:
                     and re.fullmatch(r"\.|[0-9]", self.next_char)
                 ):
                     self.make_constant()
-                elif re.fullmatch(r"[a-zA-Z]", self.current_char):
+                elif re.fullmatch(r"[a-zA-Z_]", self.current_char):
                     self.make_reserved_word_or_identifier()
                 elif self.current_char == "'":
                     self.make_string()
@@ -93,7 +93,7 @@ class Lexer:
     def make_reserved_word_or_identifier(self):
         rwid_str = ""
         while self.current_char is not None and re.fullmatch(
-            r"[a-zA-z][a-zA-Z0-9]*", rwid_str + self.current_char
+            r"[a-zA-Z_][a-zA-Z0-9_]*", rwid_str + self.current_char
         ):
             rwid_str += self.current_char
             self.advance()
