@@ -1086,6 +1086,27 @@ def IF (pos):
             out["index"] =out_IfStatOption["index"]
     current.pop()
     return out
+
+# def IF (pos):
+#     children = []
+#     out = dict()
+#     current.append(pos)
+#     if (pos < len(Tokens)):
+#         temp = Tokens[pos].to_dict()
+#         if temp["token_type"]==Token_type.If:
+#             out_if=Match(Token_type.If,pos)
+#             children.append(out_if["node"])
+#             out_condition=Condition(out_if["index"])
+#             children.append(out_condition["node"])
+#             out_then=Match(Token_type.Then,out_condition["index"])
+#             children.append(out_then["node"])
+#             out_IfStatOption= ifStatOption(out_then["index"])
+#             children.append(out_IfStatOption["node"])
+#             node = Tree("IF", children)
+#             out["node"] = node
+#             out["index"] =out_IfStatOption["index"]
+#     current.pop()
+#     return out
 def AtomicStatements(pos):
     temp = Tokens[pos].to_dict()
     children = []
@@ -1169,12 +1190,12 @@ def MultipleStatementBlockIF(pos):
         out["node"] = node
         out["index"] = out_end["index"]
     else:
-        out_atomicst = AtomicStatements(pos)
-        children.append(out_atomicst["node"])
+        out_statement = Statement(pos)
+        children.append(out_statement["node"])
         node = Tree("MultipleStatementBlockIF", children)
         out["node"] = node
-        out["index"] = out_atomicst["index"]
-    
+        out["index"] = out_statement["index"]
+
     current.pop()
     return out
 
@@ -1698,8 +1719,6 @@ def Content2(pos):
         if temp["token_type"] == Token_type.Comma:
             out_comma = Match(Token_type.Comma,pos)
             children.append(out_comma["node"])
-            #out_leftFactcontent=LeftFactorContent(out_comma["index"])
-            #children.append(out_leftFactcontent["node"])
             out_content=Content(out_comma["index"])
             children.append(out_content["node"])
             node=Tree("Content2",children)

@@ -1,4 +1,4 @@
-////////////////////////////////////////////Declaration//////////////////////////////////////////////////////////////
+////////////////////////////////////////////--Program Skeleton---//////////////////////////////////////////////////////////////
 Program →  Header Declsec Block
 Header  →  ProgramID Uses
 ProgramID →  program identifier ;
@@ -7,7 +7,7 @@ Uses →  uses PackageList ; | Epsilon
 PackageList    →  PackageList Package , | Package
 PackageList → Package PackaList*
 PackageList* → , Package PackageList’ | ε
-
+////////////////////////////////////////////---Declaration---//////////////////////////////////////////////////////////////
 Declsec  →   Decls ProcedureDecS
 Decls    →  Option Decls | Epsilon
 Option -> VarDecls |  ConstDecls |  TypeDecl
@@ -16,106 +16,83 @@ VarDecls → var VarDecl | ε
 VarDecl → VarldList : Datatype; VarDecl2
 VarDecl2 → VarDecl | ε
 
-
 TypeDecl →  type identifier = Datatype;
 TypeDecl → VarIDList = Datatype ; TypeDecl2
 TypeDecl2 → TypeDecl | ε
----------------------------------------VarIdList  →  VarIdList, identifier | identifier
+
 VarldList → identifier VarldList*
 VarldList* → , identifier VarldList* |ε
 
 Datatype        →  integer| real| char| string| Boolean
 ConstDecls    → const Constld | ε
-//ConstId   → ConstId identifier =  Constant; | identifier =  Constant;
+
 Constld → identifier = Constant; Constld*
 Constld* →  identifier = Constant; Constld* |ε
 Constant →  constant | string| boolean
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-------------------------------------------Procedure--------------------------------------------------------------------------------------
--------------------------------ProcedureDecS → ProcedureDecS FuncDecS |  ProcedureDecS ProcedureDec | FuncDecS | ProcedureDec | ε
+//////////////////////////////////////////////////---Procedure---/////////////////////////////////////////////////////////////////////
 ProcedureDecS → FP ProcedureDecS*| ε
 FP →  FuncDecS | ProcedureDec
-
 ProcedureDecS* → FuncDecS ProcedureDecS*| ProcedureDec ProcedureDecS* |ε
 ProcedureDec → ProcedureHeader FPDecl ProcedureBlock
 ProcedureBlock → begin Statements end;
 ProcedureHeader →  procedure ProcedureName ArgumentOption ;
 ProcedureName → identifier
----------------------ParametersList → ParamatersList , identifier | identifier
 ParametersList → identifier ParametersList2 | constant ParametersList2
 ParametersList2 → , ParametersList| ε
--------------------------------------------Function---------------------------------------------------
+////////////////////////////////////////////////---Function---////////////////////////////////////////////////////////////////
 FuncDecS → FunctionHeader VarDecls FunctionBlock
 FunctionHeader →  function FunctionName ArgumentOption : Datatype;
 FunctionName → identifier
 FunctionBlock → begin FunctionStatements end;
 FunctionStatements  → Statements FunctionName := AssignedValue ;
 ArgumentOption -> (ArgumentsIdList) | Epsilon
--------------------------------------------------ArgumentsIdList → Option ParametersList : Datatype DefaultValue; ArgumentsIdList |ParametersList : Datatype DefaultValue;
 ArgumentsIdList → OptionArg ParametersList : Datatype DefaultValue ArgsEnd
 ArgsEnd  ; ArgumentsIdList | Epsilon
 OptionArg → const | var | ε
 DefaultValue → ε | = Constant
-
----------------------------------------------------------------------------------------------------------------------
 AssignedValue → Expression | string ; | identifier ; | constant
+Expression → Term Exp
+Exp → AddOp Term Exp |ε
+Term → Factor Term2
+Term2 → MultOp Factor Term2 |ε
+Factor → identifier|(Expression) | constant
+////////////////////////////////////////////////---Operators---////////////////////////////////////////////////////////
 BoolOp → < | > | = | <= | >= | <> | not | and | or | xor
 ArithmOp → MultOp | AddOp
 MultOp → * | /
 AddOp → + | -
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
------------------------------Content → Content , string  |Content , ParameterList | string| identifier
-Content → string Content2 | identifier Content2
-Content2→ , LeftFactorContent|ε
-LeftFactorContent  LeftFactorContent2 Content2 | identifier | string
-LeftFactorContent2 → string | ParameterList
---------------------------------------FPCall → identifier; | identifier:=FunctionName;
-FPCall → identifier FPCall2
-FPCall2 ;|:= FunctionName;
+///////////////////////////////////////////////////---FunctionCall---///////////////////////////////////////////////////////
 
-
-
-----------------------------Expression → Term | Expression AddOp Term
-Expression → Term Exp
-Exp → AddOp Term Exp |ε
-
----------------------------------Term → Term MultOp Factor | Factor
-Term → Factor Term2
-Term2 → MultOp Factor Term2 |ε
-Factor → identifier|(Expression) | constant
-
-
-///////////////////////////////////////////////////Draft Area///////////////////////////////////////////////////////
-AtomicStatement->
- FPCallOrAssignemnt |
-| writeln(Content)
-| write(Content) | readln (ParametersList) | read (ParametersList)
-
--------------------------FPCallOrAssignemnt ->  ProcedureCall |identifier := identifier |  identifier:= identifier(Parameterlist)
 ProcedureCall ->  indentifier |  identifier(Parameterlist)
-
 AssignedValue → Expression | string ; | identifier;
 FPCallOrAssignemnt -> identifier FunctionCallAssignment2
 FunctionCallAssignemnt2 -> Epsilon | := FunctionCallAssignemnt3 | (ParamaterList)
 FunctionCallAssignemnt3 -> identifier FunctionCallAssignemnt4 | AssignedValue
 FunctionCallAssignemnt4 -> Epsilon | (ParameterList)
 
--------------------------------------Statements------------------------------------------------
+///////////////////////////////////////////////////--Statements---//////////////////////////////////////////////////////////////////////
 Statements → Statement ; Statements | ε
 Statement  → AtomicStatement |
 | if Condition then IfStatOption
 | while Condition do MultipleStatementBlockIF
-| repeat Statements until Condition ;
+| repeat Statements until Condition
 | for identifier := constant to constant do MultipleStatementBlockIF
 | ε
 
-ifStateOption  MultipleStatmentBlockIF StatementBlock
+AtomicStatement-> FPCallOrAssignemnt | writeln(Content)| write(Content) | readln (ParametersList) | read (ParametersList)
+IfStateOption  MultipleStatmentBlockIF StatementBlock
 StatementBlock  else MultiplestatmentBlockIF | ε
-MultipleStatementBlockIF → begin Statements end | AtomicStatement | Statements
-Condition ->
-////////////////////////////////////////End Draft Area//////////////////////////////////////////////////////////////////
+MultipleStatementBlockIF → begin Statements end | Statement
 
-
+FPCallOrAssignemnt ->  ProcedureCall |identifier := identifier |  identifier:= identifier(Parameterlist)
+Content → string Content2 | identifier Content2
+Content2→ , LeftFactorContent|ε
+LeftFactorContent  LeftFactorContent2 Content2 | identifier | string
+LeftFactorContent2 → string | ParameterList
+FPCall → identifier FPCall2
+FPCall2 ;|:= FunctionName;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

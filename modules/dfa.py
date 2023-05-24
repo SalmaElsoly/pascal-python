@@ -119,6 +119,9 @@ def DictionaryDFA(text: str, dictionary: dict[str, Token_type]):
         for c in key:
             input_symbols.add(c)
     states = {"", "reject"}
+    for curr in dictionary:
+        for idx in range(len(curr)):
+            states.add(curr[:idx + 1])
     states.update({key for key in dictionary})
     transitions = {state: {} for state in states}
     for state in states:
@@ -157,7 +160,7 @@ def DictionaryDFA(text: str, dictionary: dict[str, Token_type]):
     dfa.show_diagram(
         text,
         view=True,
-        fig_size=(32, 32)
+        fig_size=(32, 32),
     )
     time.sleep(3)
     NFA(text)
@@ -176,4 +179,4 @@ def vizualize(text: str, token_type: Token_type) -> None:
         DictionaryDFA(text, ReservedWords)
     elif token_type == Token_type.Dot:
         DictionaryDFA(text, {".": Token_type.Dot})
-
+# vizualize("begin", Token_type.Begin)
