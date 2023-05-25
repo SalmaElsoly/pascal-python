@@ -32,7 +32,7 @@ Constant →  constant | string| boolean
 //////////////////////////////////////////////////---Procedure---/////////////////////////////////////////////////////////////////////
 ProcedureDecS → FP ProcedureDecS*| ε
 FP →  FuncDecS | ProcedureDec
-ProcedureDecS* → FuncDecS ProcedureDecS*| ProcedureDec ProcedureDecS* |ε
+ProcedureDeclarationSection2 → FuncDecS ProcedureDeclarationSection2| ProcedureDec ProcedureDeclarationSection2 |ε
 ProcedureDec → ProcedureHeader FPDecl ProcedureBlock
 ProcedureBlock → begin Statements end;
 ProcedureHeader →  procedure ProcedureName ArgumentOption ;
@@ -62,7 +62,6 @@ BoolOp → < | > | = | <= | >= | <> | not | and | or | xor
 ArithmOp → MultOp | AddOp
 MultOp → * | /
 AddOp → + | -
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////---FunctionCall---///////////////////////////////////////////////////////
 
@@ -77,23 +76,24 @@ FunctionCallAssignemnt4 -> Epsilon | (ParameterList)
 Statements → Statement ; Statements | ε
 Statement  → AtomicStatement |
 | if Condition then IfStatOption
-| while Condition do MultipleStatementBlockIF
+| while Condition do MultipleStatementBlock
 | repeat Statements until Condition
-| for identifier := constant to constant do MultipleStatementBlockIF
+| for identifier := constant to constant do MultipleStatementBlock
 | ε
 
 AtomicStatement-> FPCallOrAssignemnt | writeln(Content)| write(Content) | readln (ParametersList) | read (ParametersList)
 IfStateOption  MultipleStatmentBlockIF StatementBlock
-StatementBlock  else MultiplestatmentBlockIF | ε
-MultipleStatementBlockIF → begin Statements end | Statement
+StatementBlock  else MultiplestatmentBlock | ε
+MultipleStatementBlock → begin Statements end | Statement
 
 FPCallOrAssignemnt ->  ProcedureCall |identifier := identifier |  identifier:= identifier(Parameterlist)
 Content → string Content2 | identifier Content2
-Content2→ , LeftFactorContent|ε
+Content2 → , LeftFactorContent|ε
 LeftFactorContent  LeftFactorContent2 Content2 | identifier | string
 LeftFactorContent2 → string | ParameterList
 FPCall → identifier FPCall2
 FPCall2 ;|:= FunctionName;
-
+Condition  Expression BoolOp Expression | (Condition) Condition2
+Condition 2 BoolOp (Condition) Condition2|ε
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -1,8 +1,4 @@
 
-#todo Package grammar what type will be package because identifier is not correct , uses token type,
-#todo type is a datatype for example in pdf, tokentype of string , tokentype Integer , real,char in function datatype
-#todo comments
-#todo in option in procedure declaration var does not work
 import tkinter as tk
 from enum import Enum
 import re
@@ -979,12 +975,6 @@ def Statement (pos):
             node = Tree("Statement", children)
             out["node"] = node
             out["index"] = out_Atomic_Statements["index"]
-        elif temp["token_type"] == Token_type.If:
-            out_If=IF(pos)
-            children.append(out_If["node"])
-            node = Tree("Statement", children)
-            out["node"] = node
-            out["index"] = out_If["index"]
         elif temp["token_type"] == Token_type.While :
             out_While = Match(Token_type.While,pos)
             children.append(out_While["node"])
@@ -992,7 +982,7 @@ def Statement (pos):
             children.append(out_cond["node"])
             out_do = Match(Token_type.Do,out_cond["index"])
             children.append(out_do["node"])
-            out_MultipleStatementBlock=MultipleStatementBlockIF(out_do["index"])
+            out_MultipleStatementBlock=MultipleStatementBlock(out_do["index"])
             children.append(out_MultipleStatementBlock["node"])
             node = Tree("Statement", children)
             out["node"] = node
@@ -1026,52 +1016,12 @@ def Statement (pos):
             children.append(out_const ["node"])
             out_do = Match(Token_type.Do,out_const ["index"])
             children.append(out_do["node"])
-            out_MultipleStatementBlock = MultipleStatementBlockIF(out_do["index"])
+            out_MultipleStatementBlock = MultipleStatementBlock(out_do["index"])
             children.append(out_MultipleStatementBlock["node"])
             node = Tree("Statement", children)
             out["node"] = node
             out["index"] = out_MultipleStatementBlock["index"]
-        else :
-            children.append(["Epsilon"])
-            out ["index"]=pos
-            node = Tree("Statement", children)
-            out["node"] = node
-    current.pop()
-    return out
-
-# def Statement2 (pos):
-#     children = []
-#     out = dict()
-#     current.append(pos)
-#     if pos < len(Tokens):
-#         temp = Tokens[pos].to_dict()
-#         if temp["token_type"] == Token_type.Semicolon:
-#             out_semiColon= Match(Token_type.Semicolon,pos)
-#             children.append(out_semiColon["node"])
-#             out_Statement = Statement(out_semiColon["index"])
-#             children.append(out_Statement["node"])
-#             out_StatementAux = Statement2(out_Statement["index"])
-#             children.append(out_StatementAux["node"])
-#             node = Tree("StatementsAdditional", children)
-#             out["node"] = node
-#             out["index"] = out_StatementAux["index"]
-
-#         else:
-#             children.append(["Epsilon"])
-#             node = Tree("StatementsAdditional", children)
-#             out["node"] = node
-#             out["index"] = pos
-
-#     current.pop()
-#     return out
-
-def IF (pos):
-    children = []
-    out = dict()
-    current.append(pos)
-    if (pos < len(Tokens)):
-        temp = Tokens[pos].to_dict()
-        if temp["token_type"]==Token_type.If:
+        elif temp["token_type"]==Token_type.If:
             out_if=Match(Token_type.If,pos)
             children.append(out_if["node"])
             out_condition=Condition(out_if["index"])
@@ -1080,32 +1030,17 @@ def IF (pos):
             children.append(out_then["node"])
             out_IfStatOption= ifStatOption(out_then["index"])
             children.append(out_IfStatOption["node"])
-            node = Tree("IF", children)
+            node = Tree("Statement", children)
             out["node"] = node
             out["index"] =out_IfStatOption["index"]
+        else :
+            children.append(["Epsilon"])
+            out ["index"]=pos
+            node = Tree("Statement", children)
+            out["node"] = node
     current.pop()
     return out
 
-# def IF (pos):
-#     children = []
-#     out = dict()
-#     current.append(pos)
-#     if (pos < len(Tokens)):
-#         temp = Tokens[pos].to_dict()
-#         if temp["token_type"]==Token_type.If:
-#             out_if=Match(Token_type.If,pos)
-#             children.append(out_if["node"])
-#             out_condition=Condition(out_if["index"])
-#             children.append(out_condition["node"])
-#             out_then=Match(Token_type.Then,out_condition["index"])
-#             children.append(out_then["node"])
-#             out_IfStatOption= ifStatOption(out_then["index"])
-#             children.append(out_IfStatOption["node"])
-#             node = Tree("IF", children)
-#             out["node"] = node
-#             out["index"] =out_IfStatOption["index"]
-#     current.pop()
-#     return out
 def AtomicStatements(pos):
     temp = Tokens[pos].to_dict()
     children = []
@@ -1173,7 +1108,7 @@ def AtomicStatements(pos):
     current.pop()
     return out
 
-def MultipleStatementBlockIF(pos):
+def MultipleStatementBlock(pos):
     temp = Tokens[pos].to_dict()
     out = dict()
     current.append(pos)
@@ -1185,13 +1120,13 @@ def MultipleStatementBlockIF(pos):
         children.append(out_statements["node"])
         out_end = Match(Token_type.End, out_statements["index"])
         children.append(out_end["node"])
-        node = Tree("MultipleStatementBlockIF", children)
+        node = Tree("MultipleStatementBlock", children)
         out["node"] = node
         out["index"] = out_end["index"]
     else:
         out_statement = Statement(pos)
         children.append(out_statement["node"])
-        node = Tree("MultipleStatementBlockIF", children)
+        node = Tree("MultipleStatementBlock", children)
         out["node"] = node
         out["index"] = out_statement["index"]
 
@@ -1202,7 +1137,7 @@ def ifStatOption(pos):
     children = []
     out = dict()
     current.append(pos)
-    out_mult=MultipleStatementBlockIF(pos)
+    out_mult=MultipleStatementBlock(pos)
     children.append(out_mult["node"])
     out_statB=StatementBlock(out_mult["index"])
     children.append(out_statB["node"])
@@ -1598,7 +1533,7 @@ def StatementBlock(pos):
     if temp["token_type"] == Token_type.Else:
         out_else = Match(Token_type.Else, pos)
         children.append(out_else["node"])
-        out_mult = MultipleStatementBlockIF(out_else["index"])
+        out_mult = MultipleStatementBlock(out_else["index"])
         children.append(out_mult["node"])
         node = Tree("StatementBlock", children)
         out["node"] = node
